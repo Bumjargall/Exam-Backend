@@ -1,0 +1,62 @@
+import { Request, Response } from "express";
+import { UserService } from "../service/userService";
+import { BaseError } from "../utils/BaseError";
+
+export const getAllUsers = async (req:Request, res:Response) => {
+    try{
+        const users = await UserService.getAllUsers()
+        if(!users) {
+            res.status(400).json({message:"Сервер шалгах..."})
+        }
+        res.status(200).json({data: users})
+    } catch(err) {
+        console.log("Алдаа: ", err)
+        res.status(500).json({message: "Сервер алдаа гарлаа..."})
+    }
+}
+export const getUserById = async (req:Request, res: Response):Promise<void> => {
+    try {
+        const userId = req.params.id
+        const user = await UserService.getUserById(userId)
+        if(!user) {
+            res.status(404).json({message: "Хэрэглэгч олдсонгүй..."})
+            return;
+        }
+        res.status(200).json({data: user})
+    } catch(err) {
+        console.log("Алдаа: ",err)
+        res.status(500).json({message: "Сервер алдаагаа шалгаач..."})
+    }
+}
+export const createUser = async (req:Request, res:Response) => {
+    try {
+        const newUser = await UserService.createUser(req.body)
+        res.status(201).json({message: "Хэрэглэгч амжилттай бүртгэгдлээ...", data: newUser})
+    } catch (err) {
+        console.log("Алдаа: ", err)
+        res.status(500).json({message: "Алдаагаа шалгаарай..."})
+    }
+}
+export const updateUser = async (req:Request, res:Response) => {
+    try{
+        const updateUser = await UserService.updateUser(req.params.id, req.body)
+        res.status(200).json({data: updateUser})
+    } catch(err) {
+        console.log("Алдаа: ", err)
+        res.status(500).json({message: "Сервер алдаагаа шалгаач..."})
+    }
+}
+
+export const deleteUser = async(req:Request, res:Response):Promise<void> => {
+    try{
+        const result = await UserService.deleteUser(req.params.id)
+        if(result.deletedCount===0){
+            res.status(404).json({message: "Хэрэглэгчийн мэдээлэл олдсонгүй..."})
+            return;
+        }
+        res.status(200).json({message: "Амжилттай устгагдлаа"})
+    } catch(err) {
+        console.log("Алдаа: ", err)
+        res.status(500).json({message: "Сервер алдаагаа шалгах..."})
+    }
+}
