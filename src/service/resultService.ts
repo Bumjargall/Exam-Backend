@@ -14,7 +14,7 @@ export class ResultService {
     }
 
     static async getResultById(examId:string) {
-        return await this.resultCollection.findOne({exam_id: new ObjectId(examId)})
+        return await this.resultCollection.find({exam_id: new ObjectId(examId)}).toArray()
     }
     static async updateResult(resultId: string, resultData:any) {
         return await this.resultCollection.updateOne(

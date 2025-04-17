@@ -28,6 +28,43 @@ export const getUserById = async (req:Request, res: Response):Promise<void> => {
         res.status(500).json({message: "Сервер алдаагаа шалгаач..."})
     }
 }
+export const loginUser = async (req:Request, res: Response)=> {
+    try{
+        const { email, password } = req.body;
+  
+        // Email болон password шалгах
+        if (!email || !password) {
+            res.status(400).json({ message: "Email болон нууц үг шаардлагатай." });
+            return;
+        }
+
+        // Хэрэглэгчийг email-аар хайх
+        const user = await UserService.findByEmail(email);
+
+        if (!user) {
+            res.status(404).json({ message: "Хэрэглэгч олдсонгүй." });
+            return;
+        }
+      
+        // Нууц үг шалгах
+        const isPasswordValid = await UserService.comparePassword(password, user.password);
+
+        if (!isPasswordValid) {
+            res.status(401).json({ message: "Нууц үг буруу байна." });
+            return;
+        }
+
+  
+        // Token үүсгэх
+        const token = UserService.generateToken(user);
+        console.log( { ok:true, message: "Амжилттай нэвтэрлээ.", token, user });
+        res.status(200).json({ ok:true, message: "Амжилттай нэвтэрлээ.", token, user });
+     
+    } catch(err){
+        console.log("Алдаа: ",err)
+        res.status(500).json({message: "Сервер алдаагаа шалгаач..."})
+    }
+}
 export const createUser = async (req:Request, res:Response) => {
     try {
         const newUser = await UserService.createUser(req.body)
