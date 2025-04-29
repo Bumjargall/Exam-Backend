@@ -25,7 +25,16 @@ export const getUserById = async (req:Request, res: Response):Promise<void> => {
         res.status(200).json({data: user})
     } catch(err) {
         console.log("Алдаа: ",err)
-        res.status(500).json({message: "Сервер алдаагаа шалгаач..."})
+        res.status(500).json({message: "Сервер алдаагаа шалгана уу..."})
+    }
+}
+export const getUserByExamId = async (req:Request, res:Response):Promise<void> => {
+    try {
+        const examId = req.params.examId
+        const user = await UserService.getUserByExamId(examId)
+    } catch(err) {
+console.log("Алдаа: ",err)
+        res.status(500).json({message: "Сервер алдаагаа шалгана уу..."})
     }
 }
 export const loginUser = async (req:Request, res: Response)=> {
@@ -62,7 +71,7 @@ export const loginUser = async (req:Request, res: Response)=> {
      
     } catch(err){
         console.log("Алдаа: ",err)
-        res.status(500).json({message: "Сервер алдаагаа шалгаач..."})
+        res.status(500).json({message: "Сервер алдаагаа шалгана уу..."})
     }
 }
 export const createUser = async (req:Request, res:Response) => {
@@ -80,7 +89,7 @@ export const updateUser = async (req:Request, res:Response) => {
         res.status(200).json({data: updateUser})
     } catch(err) {
         console.log("Алдаа: ", err)
-        res.status(500).json({message: "Сервер алдаагаа шалгаач..."})
+        res.status(500).json({message: "Сервер алдаагаа шалгана уу..."})
     }
 }
 

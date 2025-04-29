@@ -45,6 +45,9 @@ export class UserService {
   static async getUserById(userId: string) {
     return await this.usersCollection.findOne({ _id: new ObjectId(userId) });
   }
+  static async getUserByExamId(examId: string) {
+    return await this.usersCollection.findOne({ examId: examId });
+  }
 
   static async updateUser(userId: string, userData: any) {
     return await this.usersCollection.updateOne(

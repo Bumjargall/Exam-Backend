@@ -18,7 +18,7 @@ app.use("/users", userRouter)
 app.use("/monitoring", statusExamRouter)
 
 app.get("/", (req:Request, res:Response) => {
-  res.status(200).json({ message: "pong" });
+  res.status(200).json({ message: "Examly холболт амжилттай хийгдлээ..." });
 });
 
 // Start Server

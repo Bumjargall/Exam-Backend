@@ -27,6 +27,7 @@ export const getExamById = async (req:Request, res:Response):Promise<void> => {
 export const createExam = async (req:Request, res:Response) => {
     try {
         const newExam = await ExamService.createExam(req.body)
+        console.log("Шалгалт амжилттай хадгалагдлаа...", req.body)
         res.status(201).json({data: newExam})
     } catch(err) {
         console.log("Алдааг шалгах", err)

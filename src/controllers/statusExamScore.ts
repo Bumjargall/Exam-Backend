@@ -10,10 +10,10 @@ export const getAllResults = async(req:Request, res:Response) => {
         res.status(500).json({message:"Сервер шалгах..."})
     }
 }
-export const getResultById = async ( req:Request, res:Response):Promise<void> => {
+export const getResultByExamId = async ( req:Request, res:Response):Promise<void> => {
     try {
         const resultId = req.params.id
-        const result = await ResultService.getResultById(resultId)
+        const result = await ResultService.getResultByExamId(resultId)
         if(!result){
             res.status(404).json({message:"Шалгалтын мэдээлэл байхгүй..."})
             return
@@ -58,5 +58,19 @@ export const deleteResult = async(req:Request, res:Response):Promise<void> => {
     } catch(err){
         console.log("Алдаа: ", err)
         res.status(500).json({message:"Сервер алдаа..."})
+    }
+}
+export const getResultByStatusUsers = async (req:Request, res:Response):Promise<void> => {
+    try {
+        const examId = req.params.examId
+        const result = await ResultService.getResultByStatusUsers(examId)
+        if(!result){
+            res.status(404).json({message:"Шалгалтын мэдээлэл байхгүй..."})
+            return
+        }
+        res.status(200).json({data: result})
+    } catch (err) {
+        console.log("Алдаа: ", err)
+        res.status(500).json({message:"Сервер алдаа гарлаа..."})
     }
 }
