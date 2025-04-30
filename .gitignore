@@ -1,6 +1,6 @@
 # Node modules
+/node_modules
 node_modules/
-
 # Environment files
 .env
 .env.local
@@ -32,3 +32,4 @@ build/
 
 # TypeScript
 *.tsbuildinfo
+node_modules/
