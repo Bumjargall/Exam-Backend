@@ -13,7 +13,7 @@ interface IUser extends mongoose.Document {
   phone: string;
 }
 
-const userSchema = new mongoose.Schema<IUser>({
+const UserSchema = new mongoose.Schema<IUser>({
   firstName: {
     type: String,
     required: true,
@@ -46,6 +46,12 @@ const userSchema = new mongoose.Schema<IUser>({
     default: Date.now,
   },
   phone:{
-      type:String
+      type:String,
+      unique: true,
   }
+},
+{
+  timestamps: true,
 });
+
+export default mongoose.models?.User || mongoose.model<IUser>('users', UserSchema);

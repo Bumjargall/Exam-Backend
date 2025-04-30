@@ -1,6 +1,6 @@
 import {Collection, ObjectId} from "mongodb"
 import {client} from "../db"
-
+import Exam from "../models/Exam"
 const db  = client.db("Examcom")
 
 export class ExamService {
