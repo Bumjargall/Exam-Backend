@@ -33,7 +33,16 @@ export class ExamService {
         if(!ObjectId.isValid(examId)){
             throw new Error("ID буруу байна...")
         }
-        return await this.examsCollection.deleteOne({_id: new ObjectId(examId)})
+        const result =  await this.examsCollection.insertOne({_id: new ObjectId(examId)})   
+        if(!result){
+            throw new Error("Шалгалт олдсонгүй...")
+        }
+
+        const deleteExam = await this.examsCollection.deleteOne({_id: new ObjectId(examId)})
+        return {
+            deleteCount: deleteExam.deletedCount,
+            deleteExam: result
+        }
     }
     static async getExamsWithStudentInfo() {
         return await this.examsCollection.aggregate([
