@@ -33,7 +33,7 @@ export class ExamService {
         if(!ObjectId.isValid(examId)){
             throw new Error("ID буруу байна...")
         }
-        const result =  await this.examsCollection.insertOne({_id: new ObjectId(examId)})   
+        const result =  await this.examsCollection.findOne({_id: new ObjectId(examId)})   
         if(!result){
             throw new Error("Шалгалт олдсонгүй...")
         }
