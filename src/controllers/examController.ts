@@ -31,7 +31,7 @@ export const createExam = async (req: Request, res: Response) => {
   try {
     const newExam = await ExamService.createExam(req.body);
     console.log("Шалгалт амжилттай хадгалагдлаа...", req.body);
-    res.status(201).json({ data: newExam });
+    res.status(200).json({ data: newExam });
   } catch (err) {
     console.log("Алдааг шалгах", err);
     res.status(500).json({ message: "Сервер алдаа гарсан ..." });
@@ -46,7 +46,9 @@ export const updateExam = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Сервер алдаа гарлаа..." });
   }
 };
-//Promise<void> typeScript_express aldaa zasah
+
+
+//
 export const deleteExam = async (
   req: Request,
   res: Response

@@ -1,11 +1,25 @@
 import { ObjectId, Collection } from "mongodb";
-import { client } from "../db";
+import dbConnect from "../db";
+import ResultScore, {IResultScore, ResultStatus} from "../models/ResultScore";
+import Exam from "../models/Exam";
+import User from "../models/User";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
-dotenv.config();
 
-const db = client.db("Examcom");
+interface ExamWithStudentInfo extends IResultScore {
+  studentInfo: {
+    _id: ObjectId;
+    firstName: string;
+    lastName: string;
+    email: string;
+  };
+  examInfo?: {
+    title: string;
+    description: string;
+  };
+}
+
 export class UserService {
   private static usersCollection: Collection = db.collection("users");
 

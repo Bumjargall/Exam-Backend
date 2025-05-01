@@ -52,6 +52,7 @@ const UserSchema = new mongoose.Schema<IUser>({
 },
 {
   timestamps: true,
+  collection: 'users',
 });
 
-export default mongoose.models?.User || mongoose.model<IUser>('users', UserSchema);
+export default mongoose.models?.User || mongoose.model<IUser>('User', UserSchema);

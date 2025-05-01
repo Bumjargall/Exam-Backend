@@ -2,7 +2,15 @@ import mongoose, { Schema, Document, Model } from "mongoose";
 
 export type ExamStatus = "active" | "inactive";
 
-interface IExam extends Document {
+export interface IQuestion {
+  text: string;
+  points: number;
+  questionType: string;
+  options?: string[];
+  correctAnswer?: string | string[];
+}
+
+export interface IExam extends Document {
   title: string;
   description: string;
   dateTime: Date;
@@ -10,11 +18,28 @@ interface IExam extends Document {
   totalScore: number;
   status: ExamStatus;
   key: string;
-  questions: Array<object>;
+  questions: IQuestion[];
   createUserById: mongoose.Types.ObjectId;
-  createdAt: Date;
-  updatedAt: Date;
 }
+
+const QuestionSchema = new Schema({
+  text: { type: String, required: true },
+  points: { type: Number, required: true, min: 0 },
+  questionType: { 
+    type: String, 
+    required: true,
+    enum: ["multiple-choice", "true-false", "short-answer", "essay"] 
+  },
+  options: { type: [String], required: function(this: any) {
+    return this.get("questionType") === "multiple-choice";
+  }},
+  correctAnswer: { 
+    type: Schema.Types.Mixed,
+    required: function(this: any) {
+      return this.get("questionType") !== "essay";
+    }
+  }
+});
 
 const ExamSchema: Schema<IExam> = new Schema(
   {
@@ -32,12 +57,18 @@ const ExamSchema: Schema<IExam> = new Schema(
     },
     duration: {
       type: String,
-      required: true,
+      required: true,validate: {
+        validator: function(v: string) {
+          return /^(\d+h)?\s*(\d+m)?$/.test(v); // "2h 30m"
+        },
+        message: 'Хугацаа оруулах үед алдаа гарлаа. "Xh Ym"'
+      }
     },
     totalScore: {
       type: Number,
       required: true,
       default: 0,
+      min: 0,
     },
     status: {
       type: String,
@@ -47,22 +78,25 @@ const ExamSchema: Schema<IExam> = new Schema(
     key: {
       type: String,
       required: true,
+      unique: true,
     },
     questions: {
-      type: [Object],
+      type: [QuestionSchema],
       required: true,
     },
     createUserById: {
       type: Schema.Types.ObjectId,
-      ref: "users",
+      ref: "User",
       required: true,
     },
   },
   {
     timestamps: true,
+    collection: "exams",
   }
 );
 
-const Exam: Model<IExam> = mongoose.models?.Exam || mongoose.model<IExam>("exams", ExamSchema);
+const Exam = mongoose.models?.Exam as Model<IExam> || 
+mongoose.model<IExam>("Exam", ExamSchema);
 
 export default Exam;

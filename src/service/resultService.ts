@@ -1,65 +1,134 @@
-import {ObjectId, Collection} from "mongodb"
-import {client} from "../db"
+import { ObjectId } from "mongodb";
+import dbConnect from "../db";
+import ResultScore, { IResultScore, ResultStatus } from "../models/ResultScore";
+import Exam from "../models/Exam";
+import User from "../models/User";
 
-const db = client.db("Examcom")
+interface ExamWithStudentInfo extends IResultScore {
+  studentInfo: {
+    _id: ObjectId;
+    firstName: string;
+    lastName: string;
+    email: string;
+  };
+}
+
 export class ResultService {
-    private static resultCollection: Collection = db.collection("studentsExamScore")
-    private static examsCollection: Collection = db.collection("studentsExamScore");
+  static async createResult(
+    resultData: Omit<IResultScore, "_id">
+  ): Promise<IResultScore> {
+    await dbConnect();
+    try {
+      const result = await ResultScore.create(resultData);
+      return result.toObject();
+    } catch (error) {
+      throw new Error("CreateResult алдаа: " + error);
+    }
+  }
 
-    static async createResult(resultData: any) {
-        return await this.resultCollection.insertOne(resultData)
+  static async getAllResults(): Promise<IResultScore[]> {
+    await dbConnect();
+    try {
+      return await ResultScore.find().lean();
+    } catch (error) {
+      throw new Error("ResultService.getAllResults алдаа: " + error);
     }
+  }
 
-    static async getAllResults() {
-        return await this.resultCollection.find().toArray()
+  static async getResultByExamId(examId: string): Promise<IResultScore[]> {
+    await dbConnect();
+    if(!ObjectId.isValid(examId)) {
+        throw new Error("examID шалгахад алдаа гарлаа...");
     }
-
-    static async getResultByExamId(examId:string) {
-        return await this.resultCollection.find({exam_id: new ObjectId(examId)}).toArray()
+    try {
+      return await ResultScore.find({ examId: new ObjectId(examId) }).lean();
+    } catch (error) {
+      throw new Error("ResultService.getResultByExamId алдаа: " + error);
     }
-    static async updateResult(resultId: string, resultData:any) {
-        return await this.resultCollection.updateOne(
-            {_id: new ObjectId(resultId)},
-            {$set:resultData}
-        )
+  }
+  static async updateResult(resultId: string, resultData: Partial<IResultScore>) : Promise<IResultScore | null> {
+    await dbConnect();
+    try {
+        return await ResultScore.findByIdAndUpdate(
+            resultId,
+            resultData,
+            { new: true, runValidators: true }
+        ).lean();
+    } catch (error) {
+        throw new Error("ResultService.updateResult алдаа: " + error);
     }
-    static async deleteResult(resultId:string){
-        return await this.resultCollection.deleteOne({_id: new ObjectId(resultId)})
+  }
+  static async deleteResult(resultId: string) : Promise<IResultScore | null> {
+    await dbConnect();
+    if (!ObjectId.isValid(resultId)) {
+        throw new Error("ID буруу байна...");
     }
-    //result -ын status нь submitted, taking
-    static async getResultByStatusUsers(examId: string) {
-        return await this.examsCollection.aggregate([
+    try {
+        const result = await ResultScore.findById(resultId);
+        await ResultScore.findByIdAndDelete(resultId);
+        return result;
+    } catch (error) {
+        throw new Error("ResultService.deleteResult алдаа: " + error);
+    }
+  }
+  //result -ын status нь submitted, taking
+  static async getResultByStatusUsers(examId: string): Promise<ExamWithStudentInfo[]> {
+    await dbConnect();
+    if (!ObjectId.isValid(examId)) {
+      throw new Error("examID шалгахад алдаа гарлаа...");
+    }
+    try {
+        const result = await ResultScore.aggregate<ExamWithStudentInfo>([
             {
-                $match: {
-                    exam_id: new ObjectId(examId), // Filter by exam_id instead of _id
-                }
+            $match: {
+                examId: new ObjectId(examId),
+            },
             },
             {
-                $lookup: {
-                    from: "users", // The name of the students collection
-                    localField: "student_id", // Field in the exams collection
-                    foreignField: "_id", // Field in the students collection
-                    as: "studentInfo" // The resulting array field
-                }
+            $lookup: {
+                from: "users", 
+                localField: "studentId", 
+                foreignField: "_id", 
+                as: "studentInfo", 
+            },
             },
             {
-                $unwind: "$studentInfo" // Unwind the studentInfo array to get a single object
+            $unwind: "$studentInfo",
             },
             {
-                $project: {
-                    _id: 1,
-                    exam_id: 1,
-                    startedAt: 1,
-                    submittedAt: 1,
-                    score: 1,
-                    status: 1,
-                    questions: 1,
-                    "studentInfo._id": 1,
-                    "studentInfo.firstName": 1,
-                    "studentInfo.lastName": 1,
-                    "studentInfo.email": 1 // Include other fields as needed
-                }
-            }
-        ]).toArray();
+            $project: {
+                _id: 1,
+                examId: 1,
+                startedAt: 1,
+                submittedAt: 1,
+                score: 1,
+                status: 1,
+                questions: 1,
+                duration: 1,
+                "studentInfo._id": 1,
+                "studentInfo.firstName": 1,
+                "studentInfo.lastName": 1,
+                "studentInfo.email": 1,
+            },
+            },
+        ]);
+        return result;
+    } catch   (error) {
+      throw new Error("ResultService.getResultByStatusUsers алдаа: " + error);
     }
+  }
+
+
+    static async getResultByStudentId(studentId: string): Promise<IResultScore[]> {
+        await dbConnect();
+        if (!ObjectId.isValid(studentId)) {
+        throw new Error("studentID шалгахад алдаа гарлаа...");
+        }
+        try {
+        return await ResultScore.find({ studentId: new ObjectId(studentId) }).lean();
+        } catch (error) {
+        throw new Error("ResultService.getResultByStudentId алдаа: " + error);
+        }
+    }
+
 }
