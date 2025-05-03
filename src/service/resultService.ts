@@ -104,13 +104,12 @@ export class ResultService {
       throw new Error("ResultService.deleteResult алдаа: " + error);
     }
   }
-  //result -ын status нь submitted, taking
-  static async getResultByStatusUsers(
-    examId: string
-  ): Promise<ExamWithStudentInfo[]> {
+  //result -ын ExamId хэрэглэгчийн мэдээллийг гаргах
+  static async getResultByUsers(examId: string): Promise<ExamWithStudentInfo[]> {
     await dbConnect();
     try {
       await this.validateIds(examId);
+  
       const result = await ResultScore.aggregate<ExamWithStudentInfo>([
         {
           $match: {
@@ -129,6 +128,17 @@ export class ResultService {
           $unwind: "$studentInfo",
         },
         {
+          $lookup: {
+            from: "exams",
+            localField: "examId",
+            foreignField: "_id",
+            as: "examInfo",
+          },
+        },
+        {
+          $unwind: "$examInfo",
+        },
+        {
           $project: {
             _id: 1,
             examId: 1,
@@ -142,26 +152,16 @@ export class ResultService {
             "studentInfo.firstName": 1,
             "studentInfo.lastName": 1,
             "studentInfo.email": 1,
+            "examInfo.title": 1,
           },
         },
       ]);
+  
       return result;
     } catch (error) {
       throw new Error("ResultService.getResultByStatusUsers алдаа: " + error);
     }
   }
+  
 
-  static async getResultByStudentId(
-    studentId: string
-  ): Promise<IResultScore[]> {
-    await dbConnect();
-    try {
-      await this.validateIds(studentId);
-      return await ResultScore.find({
-        studentId: new ObjectId(studentId),
-      }).lean();
-    } catch (error) {
-      throw new Error("ResultService.getResultByStudentId алдаа: " + error);
-    }
-  }
 }

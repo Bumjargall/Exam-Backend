@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { ResultService } from "../service/resultService";
 
 export const getAllResults = async(req:Request, res:Response) => {
@@ -66,17 +66,20 @@ export const deleteResult = async(req:Request, res:Response):Promise<void> => {
         res.status(500).json({message:"Сервер алдаа..."})
     }
 }
-export const getResultByStatusUsers = async (req:Request, res:Response):Promise<void> => {
+export const getResultByUsers = async (req:Request, res:Response, next:NextFunction):Promise<void> => {
     try {
-        const examId = req.params.examId
-        const result = await ResultService.getResultByStatusUsers(examId)
+        const {examId} = req.params
+        const result = await ResultService.getResultByUsers(examId)
         if(!result){
             res.status(404).json({message:"Шалгалтын мэдээлэл байхгүй..."})
             return
         }
-        res.status(200).json({data: result})
+        res.status(200).json({success: true,
+            count: result.length,
+            data: result,})
     } catch (err) {
         console.log("Алдаа: ", err)
         res.status(500).json({message:"Сервер алдаа гарлаа..."})
+        next(err)
     }
 }
