@@ -35,12 +35,16 @@ export const createResult = async (req:Request, res:Response):Promise<void> => {
 }
 export const updateResult = async (req: Request, res: Response):Promise<void> => {
     try {
-        const updateResult = await ResultService.updateResult(req.params.id, req.body)
-        if(updateResult.matchedCount===0){
-            res.status(404).json({message:"Мэдээлэл олдсонгүй..."})
-            return
-        }
-        res.status(200).json({data:updateResult})
+        const { result, matchedCount } = await ResultService.updateResult(
+            req.params.id, 
+            req.body
+          );
+          if (matchedCount === 0) {
+            res.status(404).json({ message: "Мэдээлэл олдсонгүй..." });
+            return;
+          }
+          
+          res.status(200).json({ data: result });
     } catch(err) {
         console.log("Алдаа: ", err)
         res.status(500).json({message:"Сервер алдааг шалгах ..."})
@@ -49,11 +53,13 @@ export const updateResult = async (req: Request, res: Response):Promise<void> =>
 
 export const deleteResult = async(req:Request, res:Response):Promise<void> => {
     try {
-        const result = await ResultService.deleteResult(req.params.id)
-        if(result.deletedCount===0) {
-            res.status(404).json({message:"Мэдээлэл олдсонгүй..."})
-            return
-        }
+        const { deletedCount } = await ResultService.deleteResult(req.params.id);
+    
+    if (deletedCount === 0) {
+      res.status(404).json({ message: "Мэдээлэл олдсонгүй..." });
+      return;
+    }
+
         res.status(200).json({message:"Устгагдлаа..."})
     } catch(err){
         console.log("Алдаа: ", err)
