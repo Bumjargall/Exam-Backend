@@ -1,5 +1,7 @@
 import { RequestHandler } from "express";
+import { Request, Response, NextFunction } from "express";
 import { UserService } from "../service/userService";
+import User from "src/models/User";
 
 export const getAllUsers:RequestHandler = async (req, res, next) => {
   try {
@@ -31,7 +33,7 @@ export const getUserById : RequestHandler = async (req, res, next) => {
   }
 };
 
-export const loginUser : RequestHandler = async (req, res, next) => {
+export const loginUser = async (req:Request, res:Response, next:NextFunction): Promise<void> => {
   try {
     const { email, password } = req.body;
 
@@ -47,28 +49,26 @@ export const loginUser : RequestHandler = async (req, res, next) => {
     if (!user) {
       res.status(401).json({ 
         success: false,
-        message: "Нэвтрэх мэдээлэл буруу байна" 
+        message: "И-мэйл бүртгэлгүй байна" 
       });
       return;
     }
-
     const isPasswordValid = await UserService.comparePassword(password, user.password);
     if (!isPasswordValid) {
-      res.status(401).json({ 
+      res.status(401).json({
         success: false,
-        message: "Нэвтрэх мэдээлэл буруу байна" 
+        message: "Нэвтрэх мэдээлэл буруу байна"
       });
       return;
     }
 
     const token = UserService.generateToken(user);
-    const { password: _, ...userWithoutPassword } = user;
-
-    res.status(200).json({
+    const { password: _removed, ...userWithoutPassword } = user;
+    res.status(200).json({ 
       success: true,
       message: "Амжилттай нэвтэрлээ",
       token,
-      user: userWithoutPassword
+      user: userWithoutPassword 
     });
   } catch (error) {
     console.error("Алдаа: ", error);

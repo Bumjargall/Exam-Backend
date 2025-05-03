@@ -1,5 +1,5 @@
 import { ObjectId } from "mongodb";
-import Exam, { IExam } from "../models/Exam";
+import Exam, { CreateExamInput, IExam } from "../models/Exam";
 import ResultScore, { IResultScore } from "../models/ResultScore";
 import User from "../models/User";
 
@@ -17,7 +17,7 @@ interface ExamWithStudentInfo extends IResultScore {
 
 export class ExamService {
   static async createExam(
-    examData: Omit<IExam, "_id" | "createdAt" | "updatedAt">
+    examData: CreateExamInput
   ): Promise<IExam> {
     try {
       const newExam = await Exam.create(examData);
@@ -72,7 +72,7 @@ export class ExamService {
       throw new Error("ID буруу байна...");
     }
     try {
-      const deleteExam = await Exam.findByIdAndDelete(examId).lean();
+      const deleteExam = await Exam.findByIdAndDelete(examId);
       if (!deleteExam) {
         throw new Error("Шалгалт олдсонгүй...");
       }

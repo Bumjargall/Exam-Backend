@@ -2,6 +2,24 @@ import mongoose, { Schema, Document, Model } from "mongoose";
 
 export type ExamStatus = "active" | "inactive";
 
+export type CreateExamInput = {
+  title: string;
+  description: string;
+  dateTime: Date;
+  duration: string;
+  totalScore: number;
+  status: "active" | "inactive";
+  key: string;
+  createUserById: string;
+  questions: {
+    text: string;
+    points: number;
+    questionType: string;
+    options?: string[];
+    correctAnswer?: string | string[];
+  }[];
+};
+
 export interface IQuestion {
   text: string;
   points: number;
