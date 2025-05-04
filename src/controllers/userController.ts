@@ -1,7 +1,6 @@
-import { RequestHandler } from "express";
-import { Request, Response, NextFunction } from "express";
+import { Request, Response, NextFunction, RequestHandler } from "express";
 import { UserService } from "../service/userService";
-import User from "src/models/User";
+
 
 export const getAllUsers:RequestHandler = async (req, res, next) => {
   try {
@@ -157,6 +156,36 @@ export const updatePassword :RequestHandler = async (req, res, next) => {
     res.status(200).json({ 
       success: true,
       message: "Нууц үг амжилттай шинэчлэгдлээ" 
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+export const forgotPassword:RequestHandler = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+    const token = await UserService.sendResetPasswordEmail(email);
+
+    res.status(200).json({
+      success: true,
+      message: "Токен амжилттай үүссэн",
+      resetLink: `http://localhost:3000/reset-password/${token}`
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const resetPassword : RequestHandler = async (req, res, next) => {
+  try {
+    const { token } = req.params;
+    const { newPassword } = req.body;
+
+    await UserService.resetPassword(token, newPassword);
+
+    res.status(200).json({
+      success: true,
+      message: "Нууц үг амжилттай шинэчлэгдлээ"
     });
   } catch (error) {
     next(error);

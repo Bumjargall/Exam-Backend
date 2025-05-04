@@ -5,21 +5,36 @@ import { CreateExamInput, IExam } from "../models/Exam";
 
 
 function transformQuestions(questions: any[]) {
-  return questions.map((q) => ({
-    text: q.question,
-    points: q.score,
-    questionType: q.type,
-    options: q.answers.map((a: any) => a.text),
-    correctAnswer: q.answers
-      .filter((a: any) => a.isCorrect)
-      .map((a: any) => a.text),
-  }));
+  if (!Array.isArray(questions)) {
+    throw new Error("Асуулт байхгүй байна...");
+  }
+
+  return questions.map((q) => {
+    if (!Array.isArray(q.answers)) {
+      throw new Error("Асуулт байхгүй байна...'answers'");
+    }
+
+    return {
+      text: q.question,
+      points: q.score,
+      questionType: q.type,
+      options: q.answers.map((a: any) => a.text),
+      correctAnswer: q.answers
+        .filter((a: any) => a.isCorrect)
+        .map((a: any) => a.text),
+    };
+  });
 }
 
 
-export const createExam = async (req: Request, res: Response) => {
+export const createExam = async (req: Request, res: Response) : Promise<void>=> {
   try {
     const { title, description, questions, dateTime, duration, createUserById } = req.body;
+
+    if (!Array.isArray(questions)) {
+      res.status(400).json({ message: "'questions' талбар алга эсвэл массив биш байна..." });
+      return
+    }
     const transformedQuestions = transformQuestions(questions);
     const totalScore = transformedQuestions.reduce((acc, q) => acc + q.points, 0);
 

@@ -5,6 +5,7 @@ import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import dbConnect from "../db";
 import mongoose, { FlattenMaps } from "mongoose";
+import crypto from "crypto";
 
 dotenv.config();
 
@@ -247,5 +248,19 @@ export class UserService {
         }`
       );
     }
+  }
+
+  static async sendResetPasswordEmail(email: string): Promise<string> {
+    await dbConnect();
+    const user = await User.findOne({ email });
+    if(!user) throw new Error("Энэ имэйл хаяг бүртгэлгүй байна");
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET!, { expiresIn: "15m" });
+    return token;
+  }
+
+  static async resetPassword(token: string, newPassword: string): Promise<void> {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { id: string };
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await User.findByIdAndUpdate(decoded.id, { password: hashedPassword }); 
   }
 }

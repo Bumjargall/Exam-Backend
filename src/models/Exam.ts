@@ -46,7 +46,7 @@ const QuestionSchema = new Schema({
   questionType: { 
     type: String, 
     required: true,
-    enum: ["multiple-choice", "true-false", "short-answer", "essay"] 
+    enum: ["multiple-choice", "simple-choice", "fill-choice", "free-text","information-block","code" ] 
   },
   options: { type: [String], required: function(this: any) {
     return this.get("questionType") === "multiple-choice";

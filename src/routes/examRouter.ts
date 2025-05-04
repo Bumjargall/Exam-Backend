@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { getAllExams, getExamById, createExam, updateExam, deleteExam } from "../controllers/examController";
-import { authenticate } from "src/middlewares/auth";
+import { authenticate } from "../middlewares/auth";
 
 const examRouter = Router();
 
