@@ -66,6 +66,21 @@ export const deleteResult = async(req:Request, res:Response):Promise<void> => {
         res.status(500).json({message:"Сервер алдаа..."})
     }
 }
+
+export const getExamsWithSubmissions = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
+    try {
+      const exams = await ResultService.getExamsWithSubmissions();
+      res.status(200).json({ success: true, count: exams.length, data: exams });
+    } catch (err) {
+      console.error("Алдаа: ", err);
+      res.status(500).json({ message: "Серверийн алдаа гарлаа" });
+      next(err);
+    }
+  };
 export const getResultByUsers = async (req:Request, res:Response, next:NextFunction):Promise<void> => {
     try {
         const {examId} = req.params

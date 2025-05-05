@@ -105,6 +105,17 @@ export class ResultService {
     }
   }
   //result -ын ExamId хэрэглэгчийн мэдээллийг гаргах
+  static async getExamsWithSubmissions() {
+    await dbConnect();
+    try {
+      const examIds = await ResultScore.distinct("examId");
+      const exams = await Exam.find({ _id: { $in: examIds } }).lean();
+      console.log("exams----> ", exams);
+      return exams;
+    } catch (error) {
+      throw new Error("ResultService.getExamsWithSubmissions алдаа: " + error);
+    }
+  }
   static async getResultByUsers(examId: string): Promise<ExamWithStudentInfo[]> {
     await dbConnect();
     try {
@@ -153,6 +164,7 @@ export class ResultService {
             "studentInfo.lastName": 1,
             "studentInfo.email": 1,
             "examInfo.title": 1,
+            "examInfo._id": 1,
           },
         },
       ]);

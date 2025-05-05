@@ -1,5 +1,11 @@
 import { Router } from "express";
-import { getAllExams, getExamById, createExam, updateExam, deleteExam } from "../controllers/examController";
+import {
+  getAllExams,
+  getExamById,
+  createExam,
+  updateExam,
+  deleteExam,
+} from "../controllers/examController";
 import { authenticate } from "../middlewares/auth";
 
 const examRouter = Router();
