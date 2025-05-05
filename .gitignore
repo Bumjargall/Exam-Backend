@@ -34,3 +34,4 @@ build/
 *.tsbuildinfo
 node_modules/
 .next/
+/.next
