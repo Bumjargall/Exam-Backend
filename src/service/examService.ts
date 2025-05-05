@@ -64,24 +64,26 @@ export class ExamService {
       throw new Error("Шалгалт шинэчлэх үед алдаа гарлаа: " + error);
     }
   }
-
+//шалгалт устгах үед тухайн шалгалтын resultExam устгах
   static async deleteExam(examId: string): Promise<{
     deleteCount: number;
     deleteExam: IExam;
   }> {
     if (!ObjectId.isValid(examId)) {
-      throw new Error("ID буруу байна...");
+      throw new Error("Шалгалтын ID буруу байна...");
     }
     try {
-      const deleteExam = await Exam.findByIdAndDelete(examId);
+      const deleteExam = await Exam.findByIdAndDelete(examId).lean();
       if (!deleteExam) {
         throw new Error("Шалгалт олдсонгүй...");
       }
-      return { deleteCount: 1, deleteExam: deleteExam.toObject() };
+      await ResultScore.deleteMany({ examId: deleteExam._id });
+      return { deleteCount: 1, deleteExam };
     } catch (error) {
       throw new Error("Шалгалт устгах үед алдаа гарлаа: " + error);
     }
   }
+
   static async getExamsWithStudentInfo() : Promise<ExamWithStudentInfo[]> {
     try {
       const exams = await ResultScore.aggregate<ExamWithStudentInfo>([

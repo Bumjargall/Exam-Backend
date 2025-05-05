@@ -39,7 +39,7 @@ export const loginUser = async (req:Request, res:Response, next:NextFunction): P
     if (!email || !password) {
       res.status(400).json({ 
         success: false,
-        message: "Имэйл болон нууц үг шаардлагатай" 
+        message: "Имэйл болон нууц үг шаардлагатай"
       });
       return;
     }
@@ -169,7 +169,7 @@ export const forgotPassword:RequestHandler = async (req, res, next) => {
     res.status(200).json({
       success: true,
       message: "Токен амжилттай үүссэн",
-      resetLink: `http://localhost:3000/reset-password/${token}`
+      resetLink: `http://localhost:3000/users/reset-password/${token}`
     });
   } catch (error) {
     next(error);
