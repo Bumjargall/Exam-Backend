@@ -92,7 +92,6 @@ export class ExamService {
       throw new Error("Шалгалт устгах үед алдаа гарлаа: " + error);
     }
   }
-
   static async getExamByStudent(
     studentId: string
   ): Promise<StudentWithExamInfo[]> {
