@@ -15,11 +15,20 @@ interface ExamWithStudentInfo extends IResultScore {
     title: string;
   }[];
 }
+interface StudentWithExamInfo extends IExam {
+  _id: ObjectId;
+  score: number;
+  examInfo: {
+    _id: ObjectId;
+    title: string;
+    createdAt: Date;
+    totalScore: number;
+    key: string;
+  }[];
+}
 
 export class ExamService {
-  static async createExam(
-    examData: CreateExamInput
-  ): Promise<IExam> {
+  static async createExam(examData: CreateExamInput): Promise<IExam> {
     try {
       const newExam = await Exam.create(examData);
       return newExam.toObject();
@@ -85,6 +94,48 @@ export class ExamService {
   }
 
   static async getExamsWithStudentInfo() : Promise<ExamWithStudentInfo[]> {
+  static async getExamByStudent(
+    studentId: string
+  ): Promise<StudentWithExamInfo[]> {
+    if (!ObjectId.isValid(studentId)) {
+      throw new Error("student_id шалгахад алдаа гарлаа...");
+    }
+
+    try {
+      const exams = await ResultScore.aggregate<StudentWithExamInfo>([
+        {
+          $match: { studentId: new ObjectId(studentId) },
+        },
+        {
+          $lookup: {
+            from: "exams",
+            localField: "examId",
+            foreignField: "_id",
+            as: "examInfo",
+          },
+        },
+        {
+          $unwind: "$examInfo",
+        },
+        {
+          $project: {
+            _id: 1,
+            score: 1,
+            "examInfo._id": 1,
+            "examInfo.title": 1,
+            "examInfo.createdAt": 1,
+            "examInfo.totalScore": 1,
+            "examInfo.key": 1,
+          },
+        },
+      ]);
+
+      return exams;
+    } catch (error) {
+      throw new Error("Шалгалт авах үед алдаа гарлаа: " + error);
+    }
+  }
+  static async getExamsWithStudentInfo(): Promise<ExamWithStudentInfo[]> {
     try {
       const exams = await ResultScore.aggregate<ExamWithStudentInfo>([
         {
@@ -132,7 +183,7 @@ export class ExamService {
       return exams;
     } catch (error) {
       throw new Error("Шалгалт авах үед алдаа гарлаа" + error);
-    }   
+    }
   }
 
   //key value шалгаж илгээх

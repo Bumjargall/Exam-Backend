@@ -116,11 +116,13 @@ export class ResultService {
       throw new Error("ResultService.getExamsWithSubmissions алдаа: " + error);
     }
   }
-  static async getResultByUsers(examId: string): Promise<ExamWithStudentInfo[]> {
+  static async getResultByUsers(
+    examId: string
+  ): Promise<ExamWithStudentInfo[]> {
     await dbConnect();
     try {
       await this.validateIds(examId);
-  
+
       const result = await ResultScore.aggregate<ExamWithStudentInfo>([
         {
           $match: {
@@ -168,12 +170,10 @@ export class ResultService {
           },
         },
       ]);
-  
+
       return result;
     } catch (error) {
       throw new Error("ResultService.getResultByStatusUsers алдаа: " + error);
     }
   }
-  
-
 }

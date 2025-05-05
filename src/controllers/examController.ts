@@ -3,7 +3,6 @@ import { ExamService } from "../service/examService";
 import { v4 as uuidv4 } from "uuid";
 import { CreateExamInput, IExam } from "../models/Exam";
 
-
 function transformQuestions(questions: any[]) {
   if (!Array.isArray(questions)) {
     throw new Error("Асуулт байхгүй байна...");
@@ -26,17 +25,31 @@ function transformQuestions(questions: any[]) {
   });
 }
 
-
-export const createExam = async (req: Request, res: Response) : Promise<void>=> {
+export const createExam = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   try {
-    const { title, description, questions, dateTime, duration, createUserById } = req.body;
+    const {
+      title,
+      description,
+      questions,
+      dateTime,
+      duration,
+      createUserById,
+    } = req.body;
 
     if (!Array.isArray(questions)) {
-      res.status(400).json({ message: "'questions' талбар алга эсвэл массив биш байна..." });
-      return
+      res
+        .status(400)
+        .json({ message: "'questions' талбар алга эсвэл массив биш байна..." });
+      return;
     }
     const transformedQuestions = transformQuestions(questions);
-    const totalScore = transformedQuestions.reduce((acc, q) => acc + q.points, 0);
+    const totalScore = transformedQuestions.reduce(
+      (acc, q) => acc + q.points,
+      0
+    );
 
     const newExamData: CreateExamInput = {
       title,
@@ -63,7 +76,6 @@ export const createExam = async (req: Request, res: Response) : Promise<void>=> 
   }
 };
 
-
 export const getAllExams = async (_: Request, res: Response) => {
   try {
     const exams = await ExamService.getAllExams();
@@ -78,8 +90,10 @@ export const getAllExams = async (_: Request, res: Response) => {
   }
 };
 
-
-export const getExamById = async (req: Request, res: Response): Promise<void> => {
+export const getExamById = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   try {
     const exam = await ExamService.getExamById(req.params.id);
     if (!exam) {
@@ -93,7 +107,6 @@ export const getExamById = async (req: Request, res: Response): Promise<void> =>
   }
 };
 
-
 export const updateExam = async (req: Request, res: Response) => {
   try {
     const updatedExam = await ExamService.updateExam(req.params.id, req.body);
@@ -104,8 +117,10 @@ export const updateExam = async (req: Request, res: Response) => {
   }
 };
 
-
-export const deleteExam = async (req: Request, res: Response): Promise<void> => {
+export const deleteExam = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   try {
     const result = await ExamService.deleteExam(req.params.id);
     if (result.deleteCount === 0) {
@@ -122,7 +137,10 @@ export const deleteExam = async (req: Request, res: Response): Promise<void> => 
   }
 };
 
-export const getExamByKeyValue = async (req: Request, res: Response): Promise<void> => {
+export const getExamByKeyValue = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   try {
     const { key } = req.params;
     const exam = await ExamService.getExamByKeyValue(key);
@@ -135,4 +153,21 @@ export const getExamByKeyValue = async (req: Request, res: Response): Promise<vo
     console.log("getExamByKeyValue алдаа:", err);
     res.status(500).json({ message: "Сервер шалгана уу..." });
   }
-}
+};
+export const getExamByStudent = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const { studentId } = req.params;
+    const exam = await ExamService.getExamByStudent(studentId);
+    if (!exam) {
+      res.status(404).json({ message: "Шалгалт олдсонгүй..." });
+      return;
+    }
+    res.status(200).json({ data: exam });
+  } catch (err) {
+    console.log("getExamByStudent алдаа:", err);
+    res.status(500).json({ message: "Сервер шалгана уу..." });
+  }
+};

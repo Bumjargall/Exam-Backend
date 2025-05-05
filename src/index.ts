@@ -9,38 +9,34 @@ import statusExamRouter from "./routes/statusExamRouter";
 
 dotenv.config();
 
-const dev = process.env.NODE_ENV !== 'production';
-const nextApp = next({dev});
+const dev = process.env.NODE_ENV !== "production";
+const nextApp = next({ dev });
 const handle = nextApp.getRequestHandler();
 
 const port = process.env.PORT || 8080;
 
+async function startServer() {
+  try {
+    await nextApp.prepare();
+    await dbConnect();
+    const app = express();
 
-  async function startServer() {
-    try {
-      await nextApp.prepare();
-      await dbConnect();
-      const app = express();
-  
-      // Middleware
-      app.use(cors());
-      app.use(express.json());
-  
-      // API Routes
-     app.use("/exams", examRouter);
+    // Middleware
+    app.use(cors());
+    app.use(express.json());
+
+    // API Routes
+    app.use("/exams", examRouter);
     app.use("/users", userRouter);
     app.use("/monitoring", statusExamRouter);
-  
-    
-  
-      app.listen(port, () => {
-        console.log(`🚀 Server ready on http://localhost:${port}`);
-      });
-  
-    } catch (err) {
-      console.error('❌ Сервер алдаа гарлаа: ', err);
-      process.exit(1);
-    }
+
+    app.listen(port, () => {
+      console.log(`🚀 Server ready on http://localhost:${port}`);
+    });
+  } catch (err) {
+    console.error("❌ Сервер алдаа гарлаа: ", err);
+    process.exit(1);
   }
-  
-  startServer();
+}
+
+startServer();

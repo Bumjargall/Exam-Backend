@@ -43,20 +43,30 @@ export interface IExam extends Document {
 const QuestionSchema = new Schema({
   text: { type: String, required: true },
   points: { type: Number, required: true, min: 0 },
-  questionType: { 
-    type: String, 
+  questionType: {
+    type: String,
     required: true,
-    enum: ["multiple-choice", "simple-choice", "fill-choice", "free-text","information-block","code" ] 
+    enum: [
+      "multiple-choice",
+      "simple-choice",
+      "fill-choice",
+      "free-text",
+      "information-block",
+      "code",
+    ],
   },
-  options: { type: [String], required: function(this: any) {
-    return this.get("questionType") === "multiple-choice";
-  }},
-  correctAnswer: { 
+  options: {
+    type: [String],
+    required: function (this: any) {
+      return this.get("questionType") === "multiple-choice";
+    },
+  },
+  correctAnswer: {
     type: Schema.Types.Mixed,
-    required: function(this: any) {
+    required: function (this: any) {
       return this.get("questionType") !== "essay";
-    }
-  }
+    },
+  },
 });
 
 const ExamSchema: Schema<IExam> = new Schema(
@@ -75,12 +85,13 @@ const ExamSchema: Schema<IExam> = new Schema(
     },
     duration: {
       type: String,
-      required: true,validate: {
-        validator: function(v: string) {
+      required: true,
+      validate: {
+        validator: function (v: string) {
           return /^(\d+h)?\s*(\d+m)?$/.test(v); // "2h 30m"
         },
-        message: 'Хугацаа оруулах үед алдаа гарлаа. "Xh Ym"'
-      }
+        message: 'Хугацаа оруулах үед алдаа гарлаа. "Xh Ym"',
+      },
     },
     totalScore: {
       type: Number,
@@ -114,7 +125,8 @@ const ExamSchema: Schema<IExam> = new Schema(
   }
 );
 
-const Exam = mongoose.models?.Exam as Model<IExam> || 
-mongoose.model<IExam>("Exam", ExamSchema);
+const Exam =
+  (mongoose.models?.Exam as Model<IExam>) ||
+  mongoose.model<IExam>("Exam", ExamSchema);
 
 export default Exam;
