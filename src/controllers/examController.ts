@@ -121,3 +121,18 @@ export const deleteExam = async (req: Request, res: Response): Promise<void> => 
     res.status(500).json({ message: "Сервер алдаа..." });
   }
 };
+
+export const getExamByKeyValue = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { key } = req.params;
+    const exam = await ExamService.getExamByKeyValue(key);
+    if (!exam) {
+      res.status(404).json({ message: "Шалгалт олдсонгүй..." });
+      return;
+    }
+    res.status(200).json({ data: exam });
+  } catch (err) {
+    console.log("getExamByKeyValue алдаа:", err);
+    res.status(500).json({ message: "Сервер шалгана уу..." });
+  }
+}

@@ -24,8 +24,9 @@ userRouter.delete('/:id', deleteUser);
 userRouter.patch('/:id/role', changeUserRole);
 userRouter.patch('/:id/password', updatePassword);
 // нууц үг мартсан
+// хэрэглэгчийн имэйл рүү токен явуулах
 userRouter.post('/forgot-password', forgotPassword);
-// нууц үг шинэчлэх
+// нууц үг шинэчлэх 
 userRouter.post('/reset-password', resetPassword)
 
 export default userRouter;

@@ -11,6 +11,7 @@ interface ExamWithStudentInfo extends IResultScore {
     email: string;
   };
   examInfo: {
+    _id: ObjectId;
     title: string;
   }[];
 }
@@ -122,6 +123,7 @@ export class ExamService {
             "studentInfo.lastName": 1,
             "studentInfo.email": 1,
             "examInfo.title": 1,
+            "examInfo._id": 1,
           },
         },
       ]);
@@ -129,5 +131,21 @@ export class ExamService {
     } catch (error) {
       throw new Error("Шалгалт авах үед алдаа гарлаа" + error);
     }   
+  }
+
+  //key value шалгаж илгээх
+  static async getExamByKeyValue(key: string): Promise<IExam | null> {
+    if (!key) {
+      throw new Error("ID буруу байна...");
+    }
+    try {
+      const exam = await Exam.findOne({ key }).lean();
+      if (!exam) {
+        throw new Error("Шалгалт олдсонгүй...");
+      }
+      return exam;
+    } catch (error) {
+      throw new Error("Шалгалт авах үед алдаа гарлаа: " + error);
+    }
   }
 }
