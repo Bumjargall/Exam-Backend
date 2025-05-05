@@ -73,7 +73,7 @@ export class ExamService {
       throw new Error("Шалгалт шинэчлэх үед алдаа гарлаа: " + error);
     }
   }
-//шалгалт устгах үед тухайн шалгалтын resultExam устгах
+  //шалгалт устгах үед тухайн шалгалтын resultExam устгах
   static async deleteExam(examId: string): Promise<{
     deleteCount: number;
     deleteExam: IExam;
@@ -93,7 +93,6 @@ export class ExamService {
     }
   }
 
-  static async getExamsWithStudentInfo() : Promise<ExamWithStudentInfo[]> {
   static async getExamByStudent(
     studentId: string
   ): Promise<StudentWithExamInfo[]> {
