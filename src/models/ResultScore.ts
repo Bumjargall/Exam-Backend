@@ -1,12 +1,13 @@
 import mongoose, { Schema, Document, Model } from "mongoose";
+import { string } from "zod";
 
 export type ResultStatus = "submitted" | "taking";
 
 
 interface IQuestionResult {
-  questionId: mongoose.Types.ObjectId;
+  questionId: string;
   answer: any;
-  points?: number;
+  score: number;
   isCorrect?: boolean;
 }
 
@@ -24,15 +25,14 @@ export interface IResultScore extends Document {
 
 const QuestionResultSchema = new Schema<IQuestionResult>({
   questionId: {
-    type: Schema.Types.ObjectId,
-    ref: 'questions',
+    type: String,
     required: true
   },
   answer: {
     type: Schema.Types.Mixed,
     required: true
   },
-  points: {
+  score: {
     type: Number,
     min: 0
   },

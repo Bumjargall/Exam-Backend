@@ -42,7 +42,14 @@ export class ResultService {
         resultData.examId.toString(),
         resultData.studentId.toString()
       );
-      const result = await ResultScore.create(resultData);
+      const totalScore = resultData.questions.reduce((sum, q) => {
+        return sum + (q.score || 0);
+      }, 0);
+      const dataToSave = {
+        ...resultData,
+        score: totalScore,
+      };
+      const result = await ResultScore.create(dataToSave);
       return result.toObject();
     } catch (error) {
       throw new Error("CreateResult алдаа: " + error);
@@ -221,12 +228,11 @@ export class ResultService {
             questions: 1,
             duration: 1,
             "studentInfo._id": 1,
-            "studentInfo.firstName": 1,
-            "studentInfo.lastName": 1,
-            "studentInfo.email": 1,
             "examInfo.title": 1,
             "examInfo._id": 1,
             "examInfo.key": 1,
+            "examInfo.totalScore": 1,
+
           },
         },
       ]);
