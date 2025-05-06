@@ -2,26 +2,35 @@ import { Request, Response } from "express";
 import { ExamService } from "../service/examService";
 import { v4 as uuidv4 } from "uuid";
 import { CreateExamInput, IExam } from "../models/Exam";
+import { QuestionInput, AnswerOption } from "../models/Exam";
 
-function transformQuestions(questions: any[]) {
+type QuestionTransformed = {
+  id: string;
+  quesiton: string;
+  score: number;
+  type: QuestionInput["type"];
+  answer: string[];
+  isCorrect: string[];
+};
+
+export function transformQuestions(
+  questions: QuestionInput[]
+): QuestionInput[] {
   if (!Array.isArray(questions)) {
-    throw new Error("Асуулт байхгүй байна...");
+    throw new Error("Асуултын массив байхгүй байна.");
   }
 
   return questions.map((q) => {
-    if (!Array.isArray(q.answers)) {
-      throw new Error("Асуулт байхгүй байна...'answers'");
-    }
+    const noAnswerTypes = ["free-text", "code", "information-block"];
+
+    const answers: AnswerOption[] = Array.isArray(q.answers) ? q.answers : [];
 
     return {
-      id: uuidv4(), // ← Зайлшгүй шаардлагатай!
+      id: uuidv4(), // шинэ ID онооно
       question: q.question,
       score: q.score,
       type: q.type,
-      answer: q.answers.map((a: any) => a.text),
-      isCorrect: q.answers
-        .filter((a: any) => a.isCorrect)
-        .map((a: any) => a.text),
+      answers: noAnswerTypes.includes(q.type) ? [] : answers,
     };
   });
 }
@@ -52,12 +61,12 @@ export const createExam = async (
       0
     );
 
-    const newExamData: IExam = {
+    const newExamData: CreateExamInput = {
       title,
       description,
       questions: transformedQuestions,
       dateTime: new Date(dateTime),
-      duration: typeof duration === "number" ? `${duration}m` : duration,
+      duration: Number(duration),
       totalScore,
       status: "active",
       key: uuidv4().slice(0, 6),

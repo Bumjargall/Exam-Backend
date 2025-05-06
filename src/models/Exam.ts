@@ -1,11 +1,37 @@
 import mongoose, { Schema, Document, Model } from "mongoose";
-
+import { Types } from "mongoose";
 export type ExamStatus = "active" | "inactive";
 
 export type AnswerOption = {
   text: string;
   isCorrect: boolean;
 };
+
+export interface QuestionInput {
+  id: string;
+  question: string;
+  answers?: AnswerOption[];
+  score: number;
+  type:
+    | "multiple-choice"
+    | "simple-choice"
+    | "fill-choice"
+    | "free-text"
+    | "information-block"
+    | "code";
+}
+
+export interface CreateExamInput {
+  title: string;
+  description: string;
+  questions: QuestionInput[];
+  dateTime: Date;
+  duration: string | number;
+  totalScore: number;
+  status: "active" | "draft";
+  key: string;
+  createUserById: string | Types.ObjectId;
+}
 
 export interface Question {
   id: string;
@@ -20,18 +46,6 @@ export interface Question {
     | "information-block"
     | "code";
 }
-
-export type CreateExamInput = {
-  title: string;
-  description: string;
-  dateTime: Date;
-  duration: number;
-  totalScore: number;
-  status: "active" | "inactive";
-  key: string;
-  createUserById: mongoose.Types.ObjectId;
-  questions: Question[];
-};
 
 export interface IExam extends Document {
   title: string;
@@ -62,16 +76,18 @@ const QuestionSchema = new Schema({
       "code",
     ],
   },
-  answers: {
-    text: {
-      type: String,
-      required: true,
+  answers: [
+    {
+      text: {
+        type: String,
+        required: true,
+      },
+      isCorrect: {
+        type: Boolean,
+        required: true,
+      },
     },
-    isCorrect: {
-      type: Boolean,
-      required: true,
-    },
-  },
+  ],
 });
 
 const ExamSchema: Schema<IExam> = new Schema(

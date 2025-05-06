@@ -17,7 +17,7 @@ interface ExamWithStudentInfo extends IResultScore {
 }
 
 export class ExamService {
-  static async createExam(examData: IExam): Promise<IExam> {
+  static async createExam(examData: CreateExamInput): Promise<IExam> {
     try {
       const newExam = await Exam.create(examData);
       return newExam.toObject();
