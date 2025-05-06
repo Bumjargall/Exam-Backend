@@ -98,3 +98,19 @@ export const getResultByUsers = async (req:Request, res:Response, next:NextFunct
         next(err)
     }
 }
+export const getResultByUserId = async (req:Request, res:Response):Promise<void> => {
+    try {
+        const {userId} = req.params
+        const result = await ResultService.getResultByUserId(userId)
+        if(!result){
+            res.status(404).json({message:"Шалгалтын мэдээлэл байхгүй..."})
+            return
+        }
+        res.status(200).json({success: true,
+            count: result.length,
+            data: result,})
+    } catch (err) {
+        console.log("Алдаа: ", err)
+        res.status(500).json({message:"Сервер алдаа гарлаа..."})
+    }
+}

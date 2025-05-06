@@ -32,7 +32,7 @@ export interface IExam extends Document {
   title: string;
   description: string;
   dateTime: Date;
-  duration: string;
+  duration: Number;
   totalScore: number;
   status: ExamStatus;
   key: string;
@@ -84,14 +84,9 @@ const ExamSchema: Schema<IExam> = new Schema(
       required: true,
     },
     duration: {
-      type: String,
+      type: Number,
       required: true,
-      validate: {
-        validator: function (v: string) {
-          return /^(\d+h)?\s*(\d+m)?$/.test(v); // "2h 30m"
-        },
-        message: 'Хугацаа оруулах үед алдаа гарлаа. "Xh Ym"',
-      },
+      min:1
     },
     totalScore: {
       type: Number,

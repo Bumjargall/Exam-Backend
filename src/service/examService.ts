@@ -73,6 +73,24 @@ export class ExamService {
       throw new Error("Шалгалт шинэчлэх үед алдаа гарлаа: " + error);
     }
   }
+  static async updateExamByStatus(examId: string, status: string ): Promise<IExam | null> {
+    if (!ObjectId.isValid(examId)) {
+      throw new Error("ID буруу байна...");
+    }
+    if (!["active", "inactive"].includes(status)) {
+      throw new Error("Төлөв зөвхөн 'active' эсвэл 'inactive' байх ёстой.");
+    }
+    try {
+      const result = await Exam.findByIdAndUpdate(
+        examId,
+        { status },
+        { new: true, runValidators: true }
+      ).lean();
+      return result;
+    } catch (error) {
+      throw new Error("Шалгалт шинэчлэх үед алдаа гарлаа: " + error);
+    }
+  }
   //шалгалт устгах үед тухайн шалгалтын resultExam устгах
   static async deleteExam(examId: string): Promise<{
     deleteCount: number;

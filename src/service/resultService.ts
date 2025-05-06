@@ -176,4 +176,64 @@ export class ResultService {
       throw new Error("ResultService.getResultByStatusUsers алдаа: " + error);
     }
   }
+  //userId-аар нь шалгалтын мэдээллийг авах
+  static async getResultByUserId(userId: string): Promise<ExamWithStudentInfo[]> {
+    await dbConnect();
+    try {
+      await this.validateIds(userId);
+
+      const result = await ResultScore.aggregate<ExamWithStudentInfo>([
+        {
+          $match: {
+            studentId: new ObjectId(userId),
+          },
+        },
+        {
+          $lookup: {
+            from: "users",
+            localField: "studentId",
+            foreignField: "_id",
+            as: "studentInfo",
+          },
+        },
+        {
+          $unwind: "$studentInfo",
+        },
+        {
+          $lookup: {
+            from: "exams",
+            localField: "examId",
+            foreignField: "_id",
+            as: "examInfo",
+          },
+        },
+        {
+          $unwind: "$examInfo",
+        },
+        {
+          $project: {
+            _id: 1,
+            examId: 1,
+            startedAt: 1,
+            submittedAt: 1,
+            score: 1,
+            status: 1,
+            questions: 1,
+            duration: 1,
+            "studentInfo._id": 1,
+            "studentInfo.firstName": 1,
+            "studentInfo.lastName": 1,
+            "studentInfo.email": 1,
+            "examInfo.title": 1,
+            "examInfo._id": 1,
+            "examInfo.key": 1,
+          },
+        },
+      ]);
+
+      return result;
+    } catch (error) {
+      throw new Error("ResultService.getResultByUserId алдаа" + error);
+    }
+  }
 }

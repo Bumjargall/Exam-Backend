@@ -116,6 +116,29 @@ export const updateExam = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Сервер алдаа гарлаа..." });
   }
 };
+export const updateExamByStatus = async (req: Request, res: Response) => {
+  try {
+    const { status } = req.body;
+    if (!["active", "inactive"].includes(status)) {
+      res
+        .status(400)
+        .json({ message: "Төлөв зөвхөн 'active' эсвэл 'inactive' байх ёстой." });
+      return;
+    }
+    const updatedExam = await ExamService.updateExamByStatus(
+      req.params.id,
+      status
+    );
+    if (!updatedExam) {
+      res.status(404).json({ message: "Шалгалт олдсонгүй..." });
+      return;
+    }
+    res.status(200).json({ data: updatedExam });
+  } catch (err) {
+    console.log("updateExamByStatus алдаа:", err);
+    res.status(500).json({ message: "Сервер алдаа гарлаа..." });
+  }
+}
 
 export const deleteExam = async (
   req: Request,
