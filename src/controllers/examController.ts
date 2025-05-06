@@ -52,7 +52,7 @@ export const createExam = async (
       0
     );
 
-    const newExamData: CreateExamInput = {
+    const newExamData: IExam = {
       title,
       description,
       questions: transformedQuestions,
