@@ -154,20 +154,3 @@ export const getExamByKeyValue = async (
     res.status(500).json({ message: "Сервер шалгана уу..." });
   }
 };
-export const getExamByStudent = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
-  try {
-    const { studentId } = req.params;
-    const exam = await ExamService.getExamByStudent(studentId);
-    if (!exam) {
-      res.status(404).json({ message: "Шалгалт олдсонгүй..." });
-      return;
-    }
-    res.status(200).json({ data: exam });
-  } catch (err) {
-    console.log("getExamByStudent алдаа:", err);
-    res.status(500).json({ message: "Сервер шалгана уу..." });
-  }
-};

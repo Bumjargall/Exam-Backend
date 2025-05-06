@@ -133,56 +133,6 @@ export class ExamService {
       throw new Error("Шалгалт авах үед алдаа гарлаа: " + error);
     }
   }
-  static async getExamsWithStudentInfo(): Promise<ExamWithStudentInfo[]> {
-    try {
-      const exams = await ResultScore.aggregate<ExamWithStudentInfo>([
-        {
-          $lookup: {
-            from: "users",
-            localField: "studentId",
-            foreignField: "_id",
-            as: "studentInfo",
-          },
-        },
-        {
-          $unwind: "$studentInfo",
-        },
-        {
-          $lookup: {
-            from: "exams",
-            localField: "examId",
-            foreignField: "_id",
-            as: "examInfo",
-          },
-        },
-        {
-          $unwind: "$examInfo",
-        },
-        {
-          $project: {
-            _id: 1,
-            exam_id: 1,
-            student_id: 1,
-            startedAt: 1,
-            submittedAt: 1,
-            score: 1,
-            status: 1,
-            questions: 1,
-            duration: 1,
-            "studentInfo._id": 1,
-            "studentInfo.firstName": 1,
-            "studentInfo.lastName": 1,
-            "studentInfo.email": 1,
-            "examInfo.title": 1,
-            "examInfo._id": 1,
-          },
-        },
-      ]);
-      return exams;
-    } catch (error) {
-      throw new Error("Шалгалт авах үед алдаа гарлаа" + error);
-    }
-  }
 
   //key value шалгаж илгээх
   static async getExamByKeyValue(key: string): Promise<IExam | null> {
