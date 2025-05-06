@@ -86,7 +86,7 @@ const ExamSchema: Schema<IExam> = new Schema(
     duration: {
       type: Number,
       required: true,
-      min:1
+      min: 1,
     },
     totalScore: {
       type: Number,

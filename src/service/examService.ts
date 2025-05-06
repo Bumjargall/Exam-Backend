@@ -15,17 +15,6 @@ interface ExamWithStudentInfo extends IResultScore {
     title: string;
   }[];
 }
-interface StudentWithExamInfo extends IExam {
-  _id: ObjectId;
-  score: number;
-  examInfo: {
-    _id: ObjectId;
-    title: string;
-    createdAt: Date;
-    totalScore: number;
-    key: string;
-  }[];
-}
 
 export class ExamService {
   static async createExam(examData: CreateExamInput): Promise<IExam> {
@@ -73,7 +62,10 @@ export class ExamService {
       throw new Error("Шалгалт шинэчлэх үед алдаа гарлаа: " + error);
     }
   }
-  static async updateExamByStatus(examId: string, status: string ): Promise<IExam | null> {
+  static async updateExamByStatus(
+    examId: string,
+    status: string
+  ): Promise<IExam | null> {
     if (!ObjectId.isValid(examId)) {
       throw new Error("ID буруу байна...");
     }
@@ -112,13 +104,13 @@ export class ExamService {
   }
   static async getExamByStudent(
     studentId: string
-  ): Promise<StudentWithExamInfo[]> {
+  ): Promise<ExamWithStudentInfo[]> {
     if (!ObjectId.isValid(studentId)) {
       throw new Error("student_id шалгахад алдаа гарлаа...");
     }
 
     try {
-      const exams = await ResultScore.aggregate<StudentWithExamInfo>([
+      const exams = await ResultScore.aggregate<ExamWithStudentInfo>([
         {
           $match: { studentId: new ObjectId(studentId) },
         },

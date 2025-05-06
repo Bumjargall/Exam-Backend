@@ -3,7 +3,6 @@ import { string } from "zod";
 
 export type ResultStatus = "submitted" | "taking";
 
-
 interface IQuestionResult {
   questionId: string;
   answer: any;
@@ -26,33 +25,33 @@ export interface IResultScore extends Document {
 const QuestionResultSchema = new Schema<IQuestionResult>({
   questionId: {
     type: String,
-    required: true
+    required: true,
   },
   answer: {
     type: Schema.Types.Mixed,
-    required: true
+    required: true,
   },
   score: {
     type: Number,
-    min: 0
+    min: 0,
   },
   isCorrect: {
-    type: Boolean
-  }
+    type: Boolean,
+  },
 });
 
 const ResultScoreSchema: Schema<IResultScore> = new Schema(
   {
     submittedAt: {
       type: Date,
-      required: function() {
-        return this.status === 'submitted';
-      }
+      required: function () {
+        return this.status === "submitted";
+      },
     },
     score: {
       type: Number,
       required: true,
-      default: 0
+      default: 0,
     },
     status: {
       type: String,
@@ -71,22 +70,23 @@ const ResultScoreSchema: Schema<IResultScore> = new Schema(
     duration: {
       type: Number,
       min: 0,
-      description: 'Шалгалтын үргэлжлэх хугацаа минутээр',
+      description: "Шалгалтын үргэлжлэх хугацаа минутээр",
     },
     studentId: {
       type: Schema.Types.ObjectId,
-      ref: "User", 
+      ref: "User",
       required: true,
     },
   },
   {
     // createdAt болон updatedAt автоматаар үүсгэнэ
-    timestamps: true, 
-    collection: "studentsExamScore"
+    timestamps: true,
+    collection: "studentsExamScore",
   }
 );
 
 const ResultScore: Model<IResultScore> =
-  mongoose.models?.ResultScore || mongoose.model<IResultScore>("ResultScore", ResultScoreSchema);
+  mongoose.models?.ResultScore ||
+  mongoose.model<IResultScore>("ResultScore", ResultScoreSchema);
 
 export default ResultScore;
