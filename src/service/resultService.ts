@@ -184,7 +184,9 @@ export class ResultService {
     }
   }
   //userId-аар нь шалгалтын мэдээллийг авах
-  static async getResultByUserId(userId: string): Promise<ExamWithStudentInfo[]> {
+  static async getResultByUserId(
+    userId: string
+  ): Promise<ExamWithStudentInfo[]> {
     await dbConnect();
     try {
       await this.validateIds(userId);
@@ -229,10 +231,8 @@ export class ResultService {
             duration: 1,
             "studentInfo._id": 1,
             "examInfo.title": 1,
-            "examInfo._id": 1,
             "examInfo.key": 1,
             "examInfo.totalScore": 1,
-
           },
         },
       ]);

@@ -2,31 +2,36 @@ import mongoose, { Schema, Document, Model } from "mongoose";
 
 export type ExamStatus = "active" | "inactive";
 
+export type AnswerOption = {
+  text: string;
+  isCorrect: boolean;
+};
+
+export interface Question {
+  id: string;
+  question: string;
+  answers?: AnswerOption[];
+  score: number;
+  type:
+    | "multiple-choice"
+    | "simple-choice"
+    | "fill-choice"
+    | "free-text"
+    | "information-block"
+    | "code";
+}
+
 export type CreateExamInput = {
   title: string;
   description: string;
   dateTime: Date;
-  duration: string;
+  duration: number;
   totalScore: number;
   status: "active" | "inactive";
   key: string;
-  createUserById: string;
-  questions: {
-    text: string;
-    points: number;
-    questionType: string;
-    options?: string[];
-    correctAnswer?: string | string[];
-  }[];
+  createUserById: mongoose.Types.ObjectId;
+  questions: Question[];
 };
-
-export interface IQuestion {
-  text: string;
-  points: number;
-  questionType: string;
-  options?: string[];
-  correctAnswer?: string | string[];
-}
 
 export interface IExam extends Document {
   title: string;
@@ -36,14 +41,16 @@ export interface IExam extends Document {
   totalScore: number;
   status: ExamStatus;
   key: string;
-  questions: IQuestion[];
+  questions: Question[];
   createUserById: mongoose.Types.ObjectId;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 const QuestionSchema = new Schema({
-  text: { type: String, required: true },
-  points: { type: Number, required: true, min: 0 },
-  questionType: {
+  question: { type: String, required: true },
+  score: { type: Number, required: true, min: 0 },
+  type: {
     type: String,
     required: true,
     enum: [
@@ -55,16 +62,14 @@ const QuestionSchema = new Schema({
       "code",
     ],
   },
-  options: {
-    type: [String],
-    required: function (this: any) {
-      return this.get("questionType") === "multiple-choice";
+  answers: {
+    text: {
+      type: String,
+      required: true,
     },
-  },
-  correctAnswer: {
-    type: Schema.Types.Mixed,
-    required: function (this: any) {
-      return this.get("questionType") !== "essay";
+    isCorrect: {
+      type: Boolean,
+      required: true,
     },
   },
 });

@@ -14,11 +14,12 @@ function transformQuestions(questions: any[]) {
     }
 
     return {
-      text: q.question,
-      points: q.score,
-      questionType: q.type,
-      options: q.answers.map((a: any) => a.text),
-      correctAnswer: q.answers
+      id: uuidv4(), // ← Зайлшгүй шаардлагатай!
+      question: q.question,
+      score: q.score,
+      type: q.type,
+      answer: q.answers.map((a: any) => a.text),
+      isCorrect: q.answers
         .filter((a: any) => a.isCorrect)
         .map((a: any) => a.text),
     };
@@ -47,7 +48,7 @@ export const createExam = async (
     }
     const transformedQuestions = transformQuestions(questions);
     const totalScore = transformedQuestions.reduce(
-      (acc, q) => acc + q.points,
+      (acc, q) => acc + q.score,
       0
     );
 
@@ -64,7 +65,7 @@ export const createExam = async (
     };
 
     const newExam = await ExamService.createExam(newExamData);
-    res.status(201).json({
+    res.status(200).json({
       status: "success",
       data: {
         exam: newExam,
@@ -120,9 +121,9 @@ export const updateExamByStatus = async (req: Request, res: Response) => {
   try {
     const { status } = req.body;
     if (!["active", "inactive"].includes(status)) {
-      res
-        .status(400)
-        .json({ message: "Төлөв зөвхөн 'active' эсвэл 'inactive' байх ёстой." });
+      res.status(400).json({
+        message: "Төлөв зөвхөн 'active' эсвэл 'inactive' байх ёстой.",
+      });
       return;
     }
     const updatedExam = await ExamService.updateExamByStatus(
@@ -138,7 +139,7 @@ export const updateExamByStatus = async (req: Request, res: Response) => {
     console.log("updateExamByStatus алдаа:", err);
     res.status(500).json({ message: "Сервер алдаа гарлаа..." });
   }
-}
+};
 
 export const deleteExam = async (
   req: Request,
