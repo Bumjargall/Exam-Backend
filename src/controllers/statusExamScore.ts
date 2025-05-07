@@ -132,3 +132,24 @@ export const getResultByUserId = async (
     res.status(500).json({ message: "Сервер алдаа гарлаа..." });
   }
 };
+
+export const deleteResultByExamIdByUserId = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const { studentId, examId } = req.params;
+    const {deletedCount} = await ResultService.deleteResultByExamIdByUserId(
+      examId,
+      studentId
+    );
+    if (deletedCount === 0) {
+      res.status(404).json({ message: "Мэдээлэл олдсонгүй..." });
+      return;
+    }
+    res.status(200).json({ message: "Амжилттай устгагдлаа..." });
+  } catch (err) {
+    console.log("Алдаа: ", err);
+    res.status(500).json({ message: "Сервер алдаа..." });
+  }
+};

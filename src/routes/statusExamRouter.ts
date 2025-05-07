@@ -8,6 +8,7 @@ import {
   getAllResults,
   getResultByExamId,
   getResultByUserId,
+  deleteResultByExamIdByUserId,
 } from "../controllers/statusExamScore";
 
 const statusExamRouter = Router();
@@ -21,4 +22,5 @@ statusExamRouter.get("/submitted/exams", getExamsWithSubmissions);
 statusExamRouter.post("/", createResult);
 statusExamRouter.put("/:id", updateResult);
 statusExamRouter.delete("/:id", deleteResult);
+statusExamRouter.delete("/by-exam-user/:examId/:studentId", deleteResultByExamIdByUserId)
 export default statusExamRouter;

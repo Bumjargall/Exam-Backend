@@ -117,7 +117,7 @@ export class ResultService {
     try {
       const examIds = await ResultScore.distinct("examId");
       const exams = await Exam.find({ _id: { $in: examIds } }).lean();
-      console.log("exams----> ", exams);
+      //console.log("exams----> ", exams);
       return exams;
     } catch (error) {
       throw new Error("ResultService.getExamsWithSubmissions алдаа: " + error);
@@ -241,5 +241,18 @@ export class ResultService {
     } catch (error) {
       throw new Error("ResultService.getResultByUserId алдаа" + error);
     }
+  }
+
+  //examId, studentId хоёр байх юм бол тухайн шалгалтаас хэрэглэгчийн хасах
+  static async deleteResultByExamIdByUserId (examId:string, studentId: string) {
+    await dbConnect();
+    try{
+      const result = await ResultScore.deleteOne({examId: new ObjectId(examId),  studentId: new ObjectId(studentId) })
+      console.log("blaǎ........", result)
+      return result
+    } catch(err){
+      throw new Error("deleteResultByExamIdByUserId алдаа: "+ err)
+    }
+
   }
 }
