@@ -28,7 +28,7 @@ export class ResultService {
   private static async validateIds(...ids: string[]): Promise<void> {
     for (const id of ids) {
       if (!ObjectId.isValid(id)) {
-        throw new Error(`Invalid ID: ${id}`);
+        throw new Error(`Буруу ID: ${id}`);
       }
     }
   }

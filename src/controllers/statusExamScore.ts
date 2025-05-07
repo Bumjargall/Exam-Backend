@@ -51,6 +51,7 @@ export const updateResult = async (
       req.body
     );
     if (matchedCount === 0) {
+      console.warn("Өөрчлөлт хийгдээгүй байна.");
       res.status(404).json({ message: "Мэдээлэл олдсонгүй..." });
       return;
     }
@@ -125,7 +126,7 @@ export const getResultByUserId = async (
       res.status(404).json({ message: "Шалгалтын мэдээлэл байхгүй..." });
       return;
     }
-    console.log("result-----+++++++>", result);
+    //console.log("result-----+++++++>", result);
     res.status(200).json({ success: true, count: result.length, data: result });
   } catch (err) {
     console.log("Алдаа: ", err);
