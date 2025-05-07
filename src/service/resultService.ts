@@ -64,6 +64,44 @@ export class ResultService {
       throw new Error("ResultService.getAllResults алдаа: " + error);
     }
   }
+  //createByUserId === userId харах
+  static async getResultByCreator(userId: string): Promise<IResultScore[]> {
+    await dbConnect();
+    try {
+      const result = await ResultScore.aggregate([
+        {
+          $lookup: {
+            from: "exams",
+            localField: "examId",
+            foreignField: "_id",
+            as: "examInfo",
+          },
+        },
+        { $unwind: "$examInfo" },
+        {
+          $match: {
+            "examInfo.createUserById": new ObjectId(userId),
+          },
+        },
+        {
+          $project: {
+            _id: 1,
+            studentId: 1,
+            examId: 1,
+            score: 1,
+            status: 1,
+            questions: 1,
+            submittedAt: 1,
+            duration: 1,
+            examTitle: "$examInfo.title", 
+          },
+        },
+      ]);
+      return result;
+    } catch (err) {
+      throw new Error("getResultByCreator алдаа: " + err);
+    }
+  }
 
   static async getResultByExamId(examId: string): Promise<IResultScore[]> {
     await dbConnect();
@@ -244,27 +282,32 @@ export class ResultService {
   }
 
   //examId, studentId хоёр байх юм бол тухайн шалгалтаас хэрэглэгчийн хасах
-  static async deleteResultByExamIdByUserId (examId:string, studentId: string) {
+  static async deleteResultByExamIdByUserId(examId: string, studentId: string) {
     await dbConnect();
-    try{
-      const result = await ResultScore.deleteOne({examId: new ObjectId(examId),  studentId: new ObjectId(studentId) })
-      console.log("blaǎ........", result)
-      return result
-    } catch(err){
-      throw new Error("deleteResultByExamIdByUserId алдаа: "+ err)
+    try {
+      const result = await ResultScore.deleteOne({
+        examId: new ObjectId(examId),
+        studentId: new ObjectId(studentId),
+      });
+      console.log("blaǎ........", result);
+      return result;
+    } catch (err) {
+      throw new Error("deleteResultByExamIdByUserId алдаа: " + err);
     }
-
   }
 
   //examID, studentId 2-ыг match хийж байвал true, байхгүй бол false илгээх, шалгах функц
-  static async checkResultByExamUser (examId:string, studentId: string) {
-    await dbConnect()
+  static async checkResultByExamUser(examId: string, studentId: string) {
+    await dbConnect();
     try {
-      const result = await ResultScore.exists({examId: new ObjectId(examId),  studentId: new ObjectId(studentId) })
+      const result = await ResultScore.exists({
+        examId: new ObjectId(examId),
+        studentId: new ObjectId(studentId),
+      });
       //console.log("service----> ",result)
-      return result
+      return result;
     } catch (err) {
-      throw new Error("checkResultByExamUser алдаа: "+ err)
+      throw new Error("checkResultByExamUser алдаа: " + err);
     }
   }
 }

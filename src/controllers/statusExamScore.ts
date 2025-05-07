@@ -10,6 +10,22 @@ export const getAllResults = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Сервер шалгах..." });
   }
 };
+
+export const getResultByCreator = async (req: Request, res:Response) => {
+  try {
+    const {userId} = req.params
+    const results = await ResultService.getResultByCreator(userId)
+    res.status(200).json({
+      success: true,
+      count: results.length,
+      data: results,
+    });
+  } catch(err) {
+    console.log("Алдаа: ", err);
+    res.status(500).json({ message: "Сервер шалгах..." });
+
+  }
+}
 export const getResultByExamId = async (
   req: Request,
   res: Response
