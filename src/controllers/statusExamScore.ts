@@ -154,3 +154,18 @@ export const deleteResultByExamIdByUserId = async (
     res.status(500).json({ message: "Сервер алдаа..." });
   }
 };
+
+export const checkResultByExamUser = async ( req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const { studentId, examId } = req.params;
+    const exists = await ResultService.checkResultByExamUser(examId, studentId)
+   
+    //console.log("existing_controller--------> ",exists)
+    res.status(200).json({ exists: Boolean(exists) })
+  } catch(err) {
+    console.log("Алдаа: ", err);
+    res.status(500).json({ message: "Сервер алдаа..." });
+  }
+}

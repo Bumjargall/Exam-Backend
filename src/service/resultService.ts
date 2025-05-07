@@ -255,4 +255,16 @@ export class ResultService {
     }
 
   }
+
+  //examID, studentId 2-ыг match хийж байвал true, байхгүй бол false илгээх, шалгах функц
+  static async checkResultByExamUser (examId:string, studentId: string) {
+    await dbConnect()
+    try {
+      const result = await ResultScore.exists({examId: new ObjectId(examId),  studentId: new ObjectId(studentId) })
+      //console.log("service----> ",result)
+      return result
+    } catch (err) {
+      throw new Error("checkResultByExamUser алдаа: "+ err)
+    }
+  }
 }

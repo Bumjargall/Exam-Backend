@@ -9,6 +9,7 @@ import {
   getResultByExamId,
   getResultByUserId,
   deleteResultByExamIdByUserId,
+  checkResultByExamUser,
 } from "../controllers/statusExamScore";
 
 const statusExamRouter = Router();
@@ -19,6 +20,7 @@ statusExamRouter.get("/:id", getResultByExamId);
 statusExamRouter.get("/by-exam/:examId", getResultByUsers);
 statusExamRouter.get("/by-user/:userId", getResultByUserId);
 statusExamRouter.get("/submitted/exams", getExamsWithSubmissions);
+statusExamRouter.get("/checkedResult/:examId/:studentId", checkResultByExamUser);
 statusExamRouter.post("/", createResult);
 statusExamRouter.put("/:id", updateResult);
 statusExamRouter.delete("/:id", deleteResult);
