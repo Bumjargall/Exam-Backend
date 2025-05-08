@@ -3,12 +3,20 @@ import dbConnect from "../db";
 import ResultScore, { IResultScore, ResultStatus } from "../models/ResultScore";
 import Exam from "../models/Exam";
 import User from "../models/User";
+import mongoose from "mongoose";
 
 interface StudentInfo {
   _id: ObjectId;
   firstName: string;
   lastName: string;
   email: string;
+}
+
+interface ICreateResult {
+  status: string;
+  examId: string;
+  userId: string;
+  score: number;
 }
 
 interface ExamWithStudentInfo extends IResultScore {
@@ -33,23 +41,22 @@ export class ResultService {
     }
   }
 
-  static async createResult(
-    resultData: Omit<IResultScore, "_id">
-  ): Promise<IResultScore> {
+  static async createResult(resultData: ICreateResult): Promise<IResultScore> {
     await dbConnect();
+    const studentId = resultData?.userId;
     try {
       await this.validateIds(
         resultData.examId.toString(),
-        resultData.studentId.toString()
+        studentId.toString()
       );
-      const totalScore = resultData.questions.reduce((sum, q) => {
-        return sum + (q.score || 0);
-      }, 0);
       const dataToSave = {
         ...resultData,
-        score: totalScore,
+        studentId: new mongoose.Types.ObjectId(studentId),
+        score: 0,
+        questions: [],
       };
       const result = await ResultScore.create(dataToSave);
+
       return result.toObject();
     } catch (error) {
       throw new Error("CreateResult алдаа: " + error);
@@ -93,7 +100,7 @@ export class ResultService {
             questions: 1,
             submittedAt: 1,
             duration: 1,
-            examTitle: "$examInfo.title", 
+            examTitle: "$examInfo.title",
           },
         },
       ]);

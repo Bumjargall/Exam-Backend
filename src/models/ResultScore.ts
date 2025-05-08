@@ -11,7 +11,7 @@ interface IQuestionResult {
 }
 
 export interface IResultScore extends Document {
-  submittedAt: Date;
+  submittedAt?: Date;
   score: number;
   status: ResultStatus;
   questions: IQuestionResult[];
@@ -20,16 +20,15 @@ export interface IResultScore extends Document {
   createdAt: Date;
   updatedAt: Date;
   duration?: number;
+  pending: string;
 }
 
 const QuestionResultSchema = new Schema<IQuestionResult>({
   questionId: {
     type: String,
-    required: true,
   },
   answer: {
     type: Schema.Types.Mixed,
-    required: true,
   },
   score: {
     type: Number,
@@ -75,6 +74,10 @@ const ResultScoreSchema: Schema<IResultScore> = new Schema(
     studentId: {
       type: Schema.Types.ObjectId,
       ref: "User",
+      required: true,
+    },
+    pending: {
+      type: String,
       required: true,
     },
   },
