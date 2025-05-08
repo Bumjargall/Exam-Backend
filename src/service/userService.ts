@@ -4,38 +4,11 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import dbConnect from "../db";
-import mongoose, { FlattenMaps } from "mongoose";
-import crypto from "crypto";
+import mongoose from "mongoose";
 
 dotenv.config();
 
 export class UserService {
-  static async createUser(userData: Omit<IUser, "_id">): Promise<IUser> {
-    await dbConnect();
-    try {
-      // Check for existing email or phone
-      const [emailExists, phoneExists] = await Promise.all([
-        User.findOne({ email: userData.email }),
-        userData.phone ? User.findOne({ phone: userData.phone }) : null,
-      ]);
-
-      if (emailExists) {
-        throw new Error("Энэ имэйл хаяг аль хэдийн бүртгэгдсэн байна");
-      }
-      if (phoneExists) {
-        throw new Error("Энэ утасны дугаар аль хэдийн бүртгэгдсэн байна");
-      }
-
-      const user = await User.create(userData);
-      return user.toObject();
-    } catch (error) {
-      throw new Error(
-        `Хэрэглэгч бүртгэхэд алдаа гарлаа: ${
-          error instanceof Error ? error.message : error
-        }`
-      );
-    }
-  }
 
   static async getAllUsers(): Promise<IUser[]> {
     await dbConnect();
@@ -43,224 +16,128 @@ export class UserService {
       return await User.find().select("-password").lean<IUser[]>();
     } catch (error) {
       throw new Error(
-        `Хэрэглэгчдийн мэдээлэл авахад алдаа гарлаа: ${
+        `"Хэрэглэгчдийн мэдээлэл авахад алдаа гарлаа:" ${
           error instanceof Error ? error.message : error
         }`
       );
     }
   }
+  // Хэрэглэгч бүртгэх
+  static async createUser(userData: Omit<IUser, "_id">): Promise<IUser> {
+    await dbConnect();
+    const [emailExists, phoneExists] = await Promise.all([
+      User.findOne({ email: userData.email }),
+      userData.phone ? User.findOne({ phone: userData.phone }) : null,
+    ]);
 
+    if (emailExists) throw new Error("Энэ имэйл бүртгэлтэй байна");
+    if (phoneExists) throw new Error("Энэ утас бүртгэлтэй байна");
+
+    const user = await User.create(userData);
+    return user.toObject();
+  }
+
+  // Имэйлээр хэрэглэгч авах
   static async findByEmail(email: string): Promise<IUser | null> {
     await dbConnect();
-    try {
-      return await User.findOne({ email })
-        .select("+password")
-        .lean<IUser | null>();
-    } catch (error) {
-      throw new Error(
-        `Имэйлээр хайхад алдаа гарлаа: ${
-          error instanceof Error ? error.message : error
-        }`
-      );
-    }
+    return await User.findOne({ email }).select("+password").lean<IUser | null>();
   }
 
-  static async comparePassword(
-    inputPassword: string,
-    storedPassword: string
-  ): Promise<boolean> {
-    try {
-      return await bcrypt.compare(inputPassword, storedPassword);
-    } catch (error) {
-      throw new Error(
-        `Нууц үг шалгахад алдаа гарлаа: ${
-          error instanceof Error ? error.message : error
-        }`
-      );
-    }
+  // Нууц үг шалгах
+  static async comparePassword(inputPassword: string, storedPassword: string): Promise<boolean> {
+    return await bcrypt.compare(inputPassword, storedPassword);
   }
 
+  // JWT токен үүсгэх
   static generateToken(user: IUser): string {
-    try {
-      const secretKey = process.env.JWT_SECRET;
-      if (!secretKey) {
-        throw new Error("JWT нууц түлхүүр тохируулаагүй байна");
-      }
+    const secretKey = process.env.JWT_SECRET;
+    if (!secretKey) throw new Error("JWT_SECRET тохируулаагүй байна");
 
-      const payload = {
-        id: (user._id as mongoose.Types.ObjectId).toString(),
-        email: user.email,
-        role: user.role,
-      };
+    const payload = {
+      id: (user._id as mongoose.Types.ObjectId).toString(),
+      email: user.email,
+      role: user.role,
+    };
 
-      return jwt.sign(payload, secretKey, { expiresIn: "24h" });
-    } catch (error) {
-      throw new Error(
-        `Токен үүсгэхэд алдаа гарлаа: ${
-          error instanceof Error ? error.message : error
-        }`
-      );
-    }
+    return jwt.sign(payload, secretKey, { expiresIn: "24h" });
   }
 
+  // Хэрэглэгчийн ID-р мэдээлэл авах
   static async getUserById(userId: string): Promise<IUser | null> {
     await dbConnect();
-    try {
-      if (!ObjectId.isValid(userId)) {
-        throw new Error("Хүчинтэй userID оруулна уу");
-      }
-      return await User.findById(userId)
-        .select("-password")
-        .lean<IUser | null>();
-    } catch (error) {
-      throw new Error(
-        `Хэрэглэгчийн мэдээлэл авахад алдаа гарлаа: ${
-          error instanceof Error ? error.message : error
-        }`
-      );
-    }
+    if (!ObjectId.isValid(userId)) throw new Error("Хүчинтэй ID биш");
+    return await User.findById(userId).select("-password").lean<IUser | null>();
   }
 
-  static async updateUser(
-    userId: string,
-    userData: Partial<IUser>
-  ): Promise<IUser | null> {
+  // Хэрэглэгчийн мэдээлэл шинэчлэх
+  static async updateUser(userId: string, userData: Partial<IUser>): Promise<IUser | null> {
     await dbConnect();
-    try {
-      if (!ObjectId.isValid(userId)) {
-        throw new Error("Хүчинтэй userID оруулна уу");
-      }
-
-      // Don't allow password updates through this method
-      if (userData.password) {
-        delete userData.password;
-      }
-
-      return (await User.findByIdAndUpdate(userId, userData, {
-        new: true,
-        runValidators: true,
-      })
-        .select("-password")
-        .lean()) as IUser | null;
-    } catch (error) {
-      throw new Error(
-        `Хэрэглэгчийн мэдээлэл шинэчлэхэд алдаа гарлаа: ${
-          error instanceof Error ? error.message : error
-        }`
-      );
-    }
+    if (!ObjectId.isValid(userId)) throw new Error("Хүчинтэй ID биш");
+    delete userData.password; // password өөрчлөхгүй
+    return await User.findByIdAndUpdate(userId, userData, { new: true, runValidators: true })
+      .select("-password")
+      .lean<IUser | null>();
   }
 
+  // Хэрэглэгч устгах
   static async deleteUser(userId: string): Promise<IUser | null> {
     await dbConnect();
-    try {
-      if (!ObjectId.isValid(userId)) {
-        throw new Error("Хүчинтэй userID оруулна уу");
-      }
+    if (!ObjectId.isValid(userId)) throw new Error("Хүчинтэй ID биш");
 
-      const user = await User.findById(userId).lean<IUser | null>();
-      await User.findByIdAndDelete(userId).lean();
-      if (!user) {
-        throw new Error("Хэрэглэгч олдсонгүй");
-      }
-
-      return user as IUser;
-    } catch (error) {
-      throw new Error(
-        `Хэрэглэгч устгахад алдаа гарлаа: ${
-          error instanceof Error ? error.message : error
-        }`
-      );
-    }
+    const user = await User.findByIdAndDelete(userId).lean<IUser | null>();
+    if (!user) throw new Error("Хэрэглэгч олдсонгүй");
+    return user;
   }
 
+  // Role-р хэрэглэгч авах
   static async getUsersByRole(role: UserRole): Promise<IUser[]> {
     await dbConnect();
-    try {
-      const users = await User.find({ role })
-        .select("-password -__v")
-        .lean<IUser[]>();
-
-      return users;
-    } catch (error) {
-      throw new Error(
-        `${role} эрхтэй хэрэглэгчдийг авахад алдаа гарлаа: ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
-    }
+    return await User.find({ role }).select("-password -__v").lean<IUser[]>();
   }
 
-  static async changeUserRole(
-    userId: string,
-    newRole: UserRole
-  ): Promise<Omit<IUser, "password"> | null> {
+  // Хэрэглэгчийн role өөрчлөх
+  static async changeUserRole(userId: string, newRole: UserRole): Promise<Omit<IUser, "password"> | null> {
     await dbConnect();
+    if (!mongoose.Types.ObjectId.isValid(userId)) throw new Error("ID буруу");
 
-    try {
-      // Validate ObjectId format
-      if (!mongoose.Types.ObjectId.isValid(userId)) {
-        throw new Error("Хүчинтэй userID оруулна уу");
-      }
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { role: newRole },
+      { new: true, runValidators: true }
+    ).select("-password").lean<Omit<IUser, "password">>();
 
-      // Update and return the user with new role
-      const updatedUser = await User.findByIdAndUpdate(
-        userId,
-        { role: newRole },
-        {
-          new: true, // Return the updated document
-          runValidators: true, // Run schema validators on update
-        }
-      )
-        .select("-password") // Exclude password field
-        .lean<Omit<IUser, "password">>(); // Proper typing for lean result
-
-      if (!updatedUser) {
-        throw new Error("Хэрэглэгч олдсонгүй");
-      }
-
-      return updatedUser;
-    } catch (error) {
-      throw new Error(
-        `Хэрэглэгчийн эрх шинэчлэхэд алдаа гарлаа: ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
-    }
+    if (!updatedUser) throw new Error("Хэрэглэгч олдсонгүй");
+    return updatedUser;
   }
 
-  static async updatePassword(
-    userId: string,
-    newPassword: string
-  ): Promise<void> {
+  // 🔐 Нууц үг шинэчлэх (өөрийн account дотроос)
+  static async updatePassword(userId: string, newPassword: string): Promise<void> {
     await dbConnect();
-    try {
-      if (!ObjectId.isValid(userId)) {
-        throw new Error("Хүчинтэй userID оруулна уу");
-      }
+    if (!ObjectId.isValid(userId)) throw new Error("ID буруу");
 
-      const hashedPassword = await bcrypt.hash(newPassword, 10);
-      await User.findByIdAndUpdate(userId, { password: hashedPassword });
-    } catch (error) {
-      throw new Error(
-        `Нууц үг шинэчлэхэд алдаа гарлаа: ${
-          error instanceof Error ? error.message : error
-        }`
-      );
-    }
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await User.findByIdAndUpdate(userId, { password: hashedPassword });
   }
 
-  static async sendResetPasswordEmail(email: string): Promise<string> {
+  // 📩 Нууц үг сэргээх токен үүсгэх
+  static async generateResetToken(email: string): Promise<string> {
     await dbConnect();
     const user = await User.findOne({ email });
-    if(!user) throw new Error("Энэ имэйл хаяг бүртгэлгүй байна");
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET!, { expiresIn: "15m" });
-    return token;
+    if (!user) throw new Error("И-мэйл бүртгэлгүй байна");
+
+    return jwt.sign({ id: user._id }, process.env.JWT_SECRET!, { expiresIn: "15m" });
   }
 
+  // 🛠 Reset password using token
   static async resetPassword(token: string, newPassword: string): Promise<void> {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { id: string };
+    const payload = jwt.verify(token, process.env.JWT_SECRET!) as { id: string };
+    await dbConnect();
+
+    const user = await User.findById(payload.id);
+    if (!user) throw new Error("Хэрэглэгч олдсонгүй");
+
     const hashedPassword = await bcrypt.hash(newPassword, 10);
-    await User.findByIdAndUpdate(decoded.id, { password: hashedPassword }); 
+    user.password = hashedPassword;
+    await user.save();
   }
 }

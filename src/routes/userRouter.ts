@@ -2,7 +2,6 @@ import express from 'express';
 import {
   getAllUsers,
   getUserById,
-  loginUser,
   createUser,
   updateUser,
   deleteUser,
@@ -11,13 +10,13 @@ import {
   forgotPassword,
   resetPassword
 } from '../controllers/userController';
+import { authenticate } from "../middlewares/auth";
 
 const userRouter = express.Router();
 
 
 userRouter.get('/', getAllUsers);
 userRouter.get('/:id', getUserById);
-userRouter.post('/login', loginUser);
 userRouter.post('/', createUser);
 userRouter.put('/:id', updateUser);
 userRouter.delete('/:id', deleteUser);

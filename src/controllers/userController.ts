@@ -1,6 +1,9 @@
 import { Request, Response, NextFunction, RequestHandler } from "express";
 import { UserService } from "../service/userService";
-
+import { Jwt } from "jsonwebtoken";
+import dotenv from "dotenv"
+import fetch from "node-fetch"
+dotenv.config()
 
 export const getAllUsers:RequestHandler = async (req, res, next) => {
   try {
@@ -10,7 +13,7 @@ export const getAllUsers:RequestHandler = async (req, res, next) => {
       data: users 
     });
   } catch (error) {
-    next(error);
+    return next(error);
   }
 };
 
@@ -18,7 +21,7 @@ export const getUserById : RequestHandler = async (req, res, next) => {
   try {
     const user = await UserService.getUserById(req.params.id);
     if (!user) {
-      res.status(404).json({ 
+      return res.status(404).json({ 
         success: false,
         message: "Хэрэглэгч олдсонгүй" 
       });
@@ -28,7 +31,7 @@ export const getUserById : RequestHandler = async (req, res, next) => {
       data: user 
     });
   } catch (error) {
-    next(error);
+    return next(error);
   }
 };
 
@@ -71,7 +74,7 @@ export const loginUser = async (req:Request, res:Response, next:NextFunction): P
     });
   } catch (error) {
     console.error("Алдаа: ", error);
-    next(error);
+    return next(error);
   }
 };
 
@@ -85,7 +88,7 @@ export const createUser :RequestHandler = async (req, res, next) => {
     });
   } catch (error) {
     console.error("Алдаа: ", error);
-    next(error);
+    return next(error);
   }
 };
 
@@ -105,7 +108,7 @@ export const updateUser :RequestHandler = async (req, res, next) => {
     });
   } catch (error) {
     console.error("Алдаа: ", error);
-    next(error);
+    return next(error);
   }
 };
 
@@ -125,7 +128,7 @@ export const deleteUser :RequestHandler = async (req, res, next) => {
       data: user 
     });
   } catch (error) {
-    next(error);
+    return next(error);
   }
 };
 
@@ -145,7 +148,7 @@ export const changeUserRole : RequestHandler = async (req, res, next) => {
       data: updatedUser 
     });
   } catch (error) {
-    next(error);
+    return next(error);
   }
 };
 
@@ -158,28 +161,46 @@ export const updatePassword :RequestHandler = async (req, res, next) => {
       message: "Нууц үг амжилттай шинэчлэгдлээ" 
     });
   } catch (error) {
-    next(error);
+    return next(error);
   }
 };
 export const forgotPassword:RequestHandler = async (req, res, next) => {
+  const { email } = req.body;
   try {
-    const { email } = req.body;
-    const token = await UserService.sendResetPasswordEmail(email);
+    const token = await UserService.generateResetToken(email);
+    const resetLink = `https://exam.com/reset-password?token=${token}`;
+    const emailResponse = await fetch("http://localhost:8000/api/send-email", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ toEmail: email, resetLink }),
+    });
+    
+    if (!emailResponse.ok) {
+      throw new Error("Имэйл илгээхэд алдаа гарлаа.");
+    }
 
     res.status(200).json({
       success: true,
-      message: "Токен амжилттай үүссэн",
-      resetLink: `http://localhost:3000/users/reset-password/${token}`
+      message: "Сэргээх холбоос имэйл рүү илгээгдлээ",
     });
   } catch (error) {
-    next(error);
+    return next(error);
   }
 };
+export const sendMail = async() => {
+
+}
 
 export const resetPassword : RequestHandler = async (req, res, next) => {
   try {
     const { token } = req.params;
     const { newPassword } = req.body;
+    if (!newPassword || newPassword.length < 4) {
+      return res.status(400).json({
+        success: false,
+        message: "Нууц үг хамгийн багадаа 4 тэмдэгт байх ёстой.",
+      });
+    }
 
     await UserService.resetPassword(token, newPassword);
 
@@ -188,6 +209,6 @@ export const resetPassword : RequestHandler = async (req, res, next) => {
       message: "Нууц үг амжилттай шинэчлэгдлээ"
     });
   } catch (error) {
-    next(error);
+    return next(error);
   }
 };

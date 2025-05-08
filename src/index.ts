@@ -6,6 +6,7 @@ import dotenv from "dotenv";
 import examRouter from "./routes/examRouter";
 import userRouter from "./routes/userRouter";
 import statusExamRouter from "./routes/statusExamRouter";
+import { loginUser, sendMail } from "./controllers/userController";
 
 dotenv.config();
 
@@ -26,6 +27,8 @@ async function startServer() {
     app.use(express.json());
 
     // API Routes
+    app.use("/auth/login", loginUser)
+    app.use("/api/send-email", sendMail)
     app.use("/exams", examRouter);
     app.use("/users", userRouter);
     app.use("/monitoring", statusExamRouter);
