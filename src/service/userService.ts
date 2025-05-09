@@ -9,7 +9,6 @@ import mongoose from "mongoose";
 dotenv.config();
 
 export class UserService {
-
   static async getAllUsers(): Promise<IUser[]> {
     await dbConnect();
     try {
@@ -40,11 +39,16 @@ export class UserService {
   // Имэйлээр хэрэглэгч авах
   static async findByEmail(email: string): Promise<IUser | null> {
     await dbConnect();
-    return await User.findOne({ email }).select("+password").lean<IUser | null>();
+    return await User.findOne({ email })
+      .select("+password")
+      .lean<IUser | null>();
   }
 
   // Нууц үг шалгах
-  static async comparePassword(inputPassword: string, storedPassword: string): Promise<boolean> {
+  static async comparePassword(
+    inputPassword: string,
+    storedPassword: string
+  ): Promise<boolean> {
     return await bcrypt.compare(inputPassword, storedPassword);
   }
 
@@ -70,11 +74,17 @@ export class UserService {
   }
 
   // Хэрэглэгчийн мэдээлэл шинэчлэх
-  static async updateUser(userId: string, userData: Partial<IUser>): Promise<IUser | null> {
+  static async updateUser(
+    userId: string,
+    userData: Partial<IUser>
+  ): Promise<IUser | null> {
     await dbConnect();
     if (!ObjectId.isValid(userId)) throw new Error("Хүчинтэй ID биш");
     delete userData.password; // password өөрчлөхгүй
-    return await User.findByIdAndUpdate(userId, userData, { new: true, runValidators: true })
+    return await User.findByIdAndUpdate(userId, userData, {
+      new: true,
+      runValidators: true,
+    })
       .select("-password")
       .lean<IUser | null>();
   }
@@ -96,7 +106,10 @@ export class UserService {
   }
 
   // Хэрэглэгчийн role өөрчлөх
-  static async changeUserRole(userId: string, newRole: UserRole): Promise<Omit<IUser, "password"> | null> {
+  static async changeUserRole(
+    userId: string,
+    newRole: UserRole
+  ): Promise<Omit<IUser, "password"> | null> {
     await dbConnect();
     if (!mongoose.Types.ObjectId.isValid(userId)) throw new Error("ID буруу");
 
@@ -104,14 +117,19 @@ export class UserService {
       userId,
       { role: newRole },
       { new: true, runValidators: true }
-    ).select("-password").lean<Omit<IUser, "password">>();
+    )
+      .select("-password")
+      .lean<Omit<IUser, "password">>();
 
     if (!updatedUser) throw new Error("Хэрэглэгч олдсонгүй");
     return updatedUser;
   }
 
   // 🔐 Нууц үг шинэчлэх (өөрийн account дотроос)
-  static async updatePassword(userId: string, newPassword: string): Promise<void> {
+  static async updatePassword(
+    userId: string,
+    newPassword: string
+  ): Promise<void> {
     await dbConnect();
     if (!ObjectId.isValid(userId)) throw new Error("ID буруу");
 
@@ -125,12 +143,19 @@ export class UserService {
     const user = await User.findOne({ email });
     if (!user) throw new Error("И-мэйл бүртгэлгүй байна");
 
-    return jwt.sign({ id: user._id }, process.env.JWT_SECRET!, { expiresIn: "15m" });
+    return jwt.sign({ id: user._id }, process.env.JWT_SECRET!, {
+      expiresIn: "15m",
+    });
   }
 
   // 🛠 Reset password using token
-  static async resetPassword(token: string, newPassword: string): Promise<void> {
-    const payload = jwt.verify(token, process.env.JWT_SECRET!) as { id: string };
+  static async resetPassword(
+    token: string,
+    newPassword: string
+  ): Promise<void> {
+    const payload = jwt.verify(token, process.env.JWT_SECRET!) as {
+      id: string;
+    };
     await dbConnect();
 
     const user = await User.findById(payload.id);

@@ -172,16 +172,21 @@ export const deleteResultByExamIdByUserId = async (
 
 export const checkResultByExamUser = async (
   req: Request,
-  res: Response
+  res: Response,
+  next: NextFunction
 ): Promise<void> => {
   try {
     const { studentId, examId } = req.params;
     const exists = await ResultService.checkResultByExamUser(examId, studentId);
 
     //console.log("existing_controller--------> ",exists)
-    res.status(200).json({ exists: Boolean(exists) });
+    res.status(200).json({
+      success: true,
+      status, // "submitted", "taking", эсвэл "none"
+    });
   } catch (err) {
     console.log("Алдаа: ", err);
     res.status(500).json({ message: "Сервер алдаа..." });
+    next(err);
   }
 };

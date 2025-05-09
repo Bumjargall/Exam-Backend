@@ -75,6 +75,9 @@ export class ResultService {
   static async getResultByCreator(userId: string): Promise<IResultScore[]> {
     await dbConnect();
     try {
+      if (!ObjectId.isValid(userId)) {
+        throw new Error("Буруу хэрэглэгчийн ID байна.");
+      }
       const result = await ResultScore.aggregate([
         {
           $lookup: {
@@ -304,15 +307,19 @@ export class ResultService {
   }
 
   //examID, studentId 2-ыг match хийж байвал true, байхгүй бол false илгээх, шалгах функц
-  static async checkResultByExamUser(examId: string, studentId: string) {
+  static async checkResultByExamUser(
+    examId: string,
+    studentId: string
+  ): Promise<"submitted" | "taking" | "none"> {
     await dbConnect();
     try {
-      const result = await ResultScore.exists({
+      const result = await ResultScore.findOne({
         examId: new ObjectId(examId),
         studentId: new ObjectId(studentId),
-      });
+      }).select("status");
       //console.log("service----> ",result)
-      return result;
+      if (!result) return "none";
+      return result.status === "submitted" ? "submitted" : "taking";
     } catch (err) {
       throw new Error("checkResultByExamUser алдаа: " + err);
     }

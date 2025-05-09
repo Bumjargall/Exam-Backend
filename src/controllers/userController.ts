@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction, RequestHandler } from "express";
+import e, { Request, Response, NextFunction, RequestHandler } from "express";
 import { UserService } from "../service/userService";
 import { Jwt } from "jsonwebtoken";
 import dotenv from "dotenv";

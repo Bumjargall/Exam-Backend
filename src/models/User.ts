@@ -11,33 +11,41 @@ export interface IUser extends mongoose.Document {
   role: UserRole;
   createdAt: Date;
   updatedAt: Date;
-  phone: string;
+  organization: string;
+  phone: number;
 }
 
 const UserSchema = new mongoose.Schema<IUser>(
   {
     firstName: {
       type: String,
-      required: [true, 'Нэр шаардлагатай'],
+      required: [true, "Нэр шаардлагатай"],
       trim: true,
     },
     lastName: {
       type: String,
-      required: [true, 'Овог шаардлагатай'],
+      required: [true, "Овог шаардлагатай"],
       trim: true,
     },
     email: {
       type: String,
-      required: [true, 'Имэйл шаардлагатай'],
+      required: [true, "Имэйл шаардлагатай"],
       unique: true,
       trim: true,
       lowercase: true,
-      match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, 'Хүчинтэй имэйл оруулна уу'],
+      match: [
+        /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/,
+        "Хүчинтэй имэйл оруулна уу",
+      ],
+    },
+    organization: {
+      type: String,
+      required: [true, "Шаардлагатай"],
     },
     password: {
       type: String,
-      required: [true, 'Нууц үг шаардлагатай'],
-      minlength: [4, 'Нууц үг 4-с дээш тэмдэгтээс бүрдэх ёстой'],
+      required: [true, "Нууц үг шаардлагатай"],
+      minlength: [4, "Нууц үг 4-с дээш тэмдэгтээс бүрдэх ёстой"],
       select: false,
     },
     role: {
@@ -46,14 +54,14 @@ const UserSchema = new mongoose.Schema<IUser>(
       default: "student",
     },
     phone: {
-      type: String,
+      type: Number,
       unique: true,
       trim: true,
     },
   },
   {
     timestamps: true,
-    collection: 'users',
+    collection: "users",
     toJSON: {
       transform: function (doc, ret) {
         delete ret.password;
@@ -64,9 +72,9 @@ const UserSchema = new mongoose.Schema<IUser>(
 );
 
 // Password hashing middleware
-UserSchema.pre<IUser>('save', async function (next) {
-  if (!this.isModified('password')) return next();
-  
+UserSchema.pre<IUser>("save", async function (next) {
+  if (!this.isModified("password")) return next();
+
   try {
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
@@ -76,4 +84,5 @@ UserSchema.pre<IUser>('save', async function (next) {
   }
 });
 
-export default mongoose.models?.User || mongoose.model<IUser>('User', UserSchema);
+export default mongoose.models?.User ||
+  mongoose.model<IUser>("User", UserSchema);
