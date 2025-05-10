@@ -177,6 +177,7 @@ export class ResultService {
   ): Promise<ExamWithStudentInfo[]> {
     await dbConnect();
     try {
+      console.log("servicee......");
       await this.validateIds(examId);
 
       const result = await ResultScore.aggregate<ExamWithStudentInfo>([
@@ -226,7 +227,7 @@ export class ResultService {
           },
         },
       ]);
-
+      console.log("reseltServer----", result);
       return result;
     } catch (error) {
       throw new Error("ResultService.getResultByStatusUsers алдаа: " + error);

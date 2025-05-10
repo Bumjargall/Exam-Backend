@@ -18,7 +18,7 @@ const statusExamRouter = Router();
 statusExamRouter.get("/by-creator/:userId", getResultByCreator);
 
 //result-д examId -аар хэрэглэгчийн мэдээллийг гаргах
-statusExamRouter.get("/by-exam/:userId", getResultByUsers);
+statusExamRouter.get("/by-exam/:examId", getResultByUsers);
 statusExamRouter.get("/by-user/:userId", getResultByUserId);
 statusExamRouter.get("/submitted/exams", getExamsWithSubmissions);
 statusExamRouter.get(

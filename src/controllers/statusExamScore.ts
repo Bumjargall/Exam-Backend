@@ -118,6 +118,7 @@ export const getResultByUsers = async (
 ): Promise<void> => {
   try {
     const { examId } = req.params;
+    console.log("examIdController----", examId);
     const result = await ResultService.getResultByUsers(examId);
     if (!result) {
       res.status(404).json({ message: "Шалгалтын мэдээлэл байхгүй..." });

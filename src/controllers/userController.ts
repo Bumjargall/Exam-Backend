@@ -5,7 +5,6 @@ import nodemailer from "nodemailer";
 import dotenv from "dotenv";
 import fetch from "node-fetch";
 import { MailOptions } from "nodemailer/lib/json-transport";
-import bcrypt from "bcrypt";
 
 dotenv.config();
 
@@ -64,7 +63,6 @@ export const loginUser = async (
     const isPasswordValid = await UserService.comparePassword(
       password,
       user.password
-    
     );
 
     if (!isPasswordValid) {
@@ -204,16 +202,15 @@ export const forgotPassword: RequestHandler = async (req, res, next) => {
 
 // Reset password with token
 export const resetPassword: RequestHandler = async (req, res, next) => {
-  
   try {
-    const {token} = req.params;
+    const { token } = req.params;
     //console.log("token................",token)
-if (!token) {
-  return res.status(400).json({
-    success: false,
-    message: "Token илгээгдээгүй байна",
-  });
-}
+    if (!token) {
+      return res.status(400).json({
+        success: false,
+        message: "Token илгээгдээгүй байна",
+      });
+    }
     const { password } = req.body;
     //console.log("PASSword................",password)
 
