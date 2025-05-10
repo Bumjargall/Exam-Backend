@@ -5,6 +5,8 @@ import nodemailer from "nodemailer";
 import dotenv from "dotenv";
 import fetch from "node-fetch";
 import { MailOptions } from "nodemailer/lib/json-transport";
+import bcrypt from "bcrypt";
+
 dotenv.config();
 
 // Get all users
@@ -41,6 +43,7 @@ export const loginUser = async (
 ): Promise<void> => {
   try {
     const { email, password } = req.body;
+
     if (!email || !password) {
       res.status(400).json({
         success: false,
@@ -61,7 +64,9 @@ export const loginUser = async (
     const isPasswordValid = await UserService.comparePassword(
       password,
       user.password
+    
     );
+
     if (!isPasswordValid) {
       res.status(401).json({
         success: false,
@@ -199,9 +204,18 @@ export const forgotPassword: RequestHandler = async (req, res, next) => {
 
 // Reset password with token
 export const resetPassword: RequestHandler = async (req, res, next) => {
+  
   try {
-    const { token } = req.query; // <-- if token comes from query ?token=
+    const {token} = req.params;
+    //console.log("token................",token)
+if (!token) {
+  return res.status(400).json({
+    success: false,
+    message: "Token илгээгдээгүй байна",
+  });
+}
     const { password } = req.body;
+    //console.log("PASSword................",password)
 
     if (!password || password.length < 4) {
       return res.status(400).json({
@@ -210,7 +224,7 @@ export const resetPassword: RequestHandler = async (req, res, next) => {
       });
     }
 
-    await UserService.resetPassword(token as string, password);
+    await UserService.resetPassword(token, password);
 
     res.status(200).json({
       success: true,

@@ -1,10 +1,11 @@
 import { ObjectId } from "mongodb";
 import User, { IUser, UserRole } from "../models/User";
-import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
+import bcrypt from "bcrypt";
 import dbConnect from "../db";
 import mongoose from "mongoose";
+import { PassThrough } from "stream";
 
 dotenv.config();
 
@@ -39,9 +40,10 @@ export class UserService {
   // Имэйлээр хэрэглэгч авах
   static async findByEmail(email: string): Promise<IUser | null> {
     await dbConnect();
-    return await User.findOne({ email })
+    const user = await User.findOne({ email })
       .select("+password")
-      .lean<IUser | null>();
+      .lean<IUser>();
+    return user;
   }
 
   // Нууц үг шалгах
@@ -49,9 +51,16 @@ export class UserService {
     inputPassword: string,
     storedPassword: string
   ): Promise<boolean> {
+    console.log(inputPassword, storedPassword);
+    console.log("🧪 Нэвтрэх password:", inputPassword);
+    console.log("🧪 DB хадгалсан password:", storedPassword);
+    console.log(
+      "🧪 Нууц үг тохирч байна уу:",
+      await bcrypt.compare(inputPassword, storedPassword)
+    );
+
     return await bcrypt.compare(inputPassword, storedPassword);
   }
-
   // JWT токен үүсгэх
   static generateToken(user: IUser): string {
     const secretKey = process.env.JWT_SECRET;
@@ -159,10 +168,11 @@ export class UserService {
     await dbConnect();
 
     const user = await User.findById(payload.id);
-    if (!user) throw new Error("Хэрэглэгч олдсонгүй");
+    if (!user) {
+      throw new Error("Хэрэглэгч олдсонгүй.");
+    }
 
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
-    user.password = hashedPassword;
+    user.password = newPassword;
     await user.save();
   }
 }
