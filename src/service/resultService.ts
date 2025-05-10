@@ -72,6 +72,7 @@ export class ResultService {
     }
   }
   //createByUserId === userId харах
+
   static async getResultByCreator(userId: string): Promise<IResultScore[]> {
     await dbConnect();
     try {
