@@ -26,6 +26,6 @@ userRouter.patch('/:id/password', updatePassword);
 // хэрэглэгчийн имэйл рүү токен явуулах
 userRouter.post('/forgot-password', forgotPassword);
 // нууц үг шинэчлэх 
-userRouter.post('/reset-password/:token', resetPassword)
+
 
 export default userRouter;
