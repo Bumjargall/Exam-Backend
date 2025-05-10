@@ -116,7 +116,22 @@ export const getExamById = async (
     res.status(500).json({ message: "Сервер алдаагаа шалгана уу..." });
   }
 };
-
+export const getExamByCreateUser = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const createUserId = req.params.id;
+    const exams = await ExamService.getExamByCreateUser(createUserId);
+    if (!exams) {
+      res.status(404).json({ message: "Шалгалт олдсонгүй..." });
+      return;
+    }
+    res.status(200).json({ data: exams });
+  } catch (err) {
+    res.status(500).json({ message: "Сервер алдаагаа шалгана уу..." });
+  }
+};
 export const updateExam = async (req: Request, res: Response) => {
   try {
     const updatedExam = await ExamService.updateExam(req.params.id, req.body);
