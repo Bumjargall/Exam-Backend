@@ -7,6 +7,7 @@ import {
   deleteExam,
   getExamByKeyValue,
   updateExamByStatus,
+  getExamByCreateUser,
 } from "../controllers/examController";
 import { authenticate } from "../middlewares/auth";
 import { get } from "mongoose";
@@ -15,6 +16,7 @@ const examRouter = Router();
 
 examRouter.get("/", getAllExams);
 examRouter.get("/:id", getExamById);
+examRouter.get("/createByteacher/:id", getExamByCreateUser);
 examRouter.get("/by-key/:key", getExamByKeyValue);
 examRouter.post("/", createExam);
 examRouter.patch("/:id/status", updateExamByStatus);

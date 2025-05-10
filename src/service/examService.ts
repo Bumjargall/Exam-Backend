@@ -2,6 +2,7 @@ import { ObjectId } from "mongodb";
 import Exam, { CreateExamInput, IExam } from "../models/Exam";
 import ResultScore, { IResultScore } from "../models/ResultScore";
 import User from "../models/User";
+import { use } from "react";
 
 interface ExamWithStudentInfo extends IResultScore {
   studentInfo: {
@@ -45,6 +46,21 @@ export class ExamService {
       throw new Error("Шалгалт авах үед алдаа гарлаа: " + error);
     }
   }
+
+  static async getExamByCreateUser(userId: string): Promise<IExam[]> {
+    const createUserById = new ObjectId(userId);
+    if (!ObjectId.isValid(createUserById)) {
+      throw new Error("examID шалгахад алдаа гарлаа...");
+    }
+    //    return await this.examsCollection.findOne({ _id: new ObjectId(examId) });
+    try {
+      const exams = await Exam.find({ createUserById }).lean();
+      return exams;
+    } catch (error) {
+      throw new Error("Шалгалт авах үед алдаа гарлаа: " + error);
+    }
+  }
+
   static async updateExam(
     examId: string,
     examData: Partial<IExam>
