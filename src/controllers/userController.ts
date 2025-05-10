@@ -200,7 +200,7 @@ export const forgotPassword: RequestHandler = async (req, res, next) => {
 // Reset password with token
 export const resetPassword: RequestHandler = async (req, res, next) => {
   try {
-    const { token } = req.query; // <-- if token comes from query ?token=
+    const { token } = req.params; // <-- if token comes from query ?token=
     const { password } = req.body;
 
     if (!password || password.length < 4) {
