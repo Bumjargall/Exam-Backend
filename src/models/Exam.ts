@@ -28,7 +28,7 @@ export interface CreateExamInput {
   dateTime: Date;
   duration: string | number;
   totalScore: number;
-  status: "active" | "draft";
+  status: "active" | "inactive";
   key: string;
   createUserById: string | Types.ObjectId;
 }

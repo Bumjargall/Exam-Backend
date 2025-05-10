@@ -11,21 +11,20 @@ export const getAllResults = async (req: Request, res: Response) => {
   }
 };
 
-export const getResultByCreator = async (req: Request, res:Response) => {
+export const getResultByCreator = async (req: Request, res: Response) => {
   try {
-    const {userId} = req.params
-    const results = await ResultService.getResultByCreator(userId)
+    const { userId } = req.params;
+    const results = await ResultService.getResultByCreator(userId);
     res.status(200).json({
       success: true,
       count: results.length,
       data: results,
     });
-  } catch(err) {
+  } catch (err) {
     console.log("Алдаа: ", err);
     res.status(500).json({ message: "Сервер шалгах..." });
-
   }
-}
+};
 export const getResultByExamId = async (
   req: Request,
   res: Response
@@ -48,7 +47,7 @@ export const createResult = async (
   res: Response
 ): Promise<void> => {
   try {
-    const newResult = await ResultService.createResult(req.body);
+    const newResult = await ResultService.createResult(req.body.createResult);
     res
       .status(201)
       .json({ message: "Амжилттай хадгалагдлаа...", data: newResult });
@@ -156,7 +155,7 @@ export const deleteResultByExamIdByUserId = async (
 ): Promise<void> => {
   try {
     const { studentId, examId } = req.params;
-    const {deletedCount} = await ResultService.deleteResultByExamIdByUserId(
+    const { deletedCount } = await ResultService.deleteResultByExamIdByUserId(
       examId,
       studentId
     );
@@ -171,17 +170,23 @@ export const deleteResultByExamIdByUserId = async (
   }
 };
 
-export const checkResultByExamUser = async ( req: Request,
-  res: Response
+export const checkResultByExamUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
 ): Promise<void> => {
   try {
     const { studentId, examId } = req.params;
-    const exists = await ResultService.checkResultByExamUser(examId, studentId)
-   
+    const exists = await ResultService.checkResultByExamUser(examId, studentId);
+
     //console.log("existing_controller--------> ",exists)
-    res.status(200).json({ exists: Boolean(exists) })
-  } catch(err) {
+    res.status(200).json({
+      success: true,
+      status, // "submitted", "taking", эсвэл "none"
+    });
+  } catch (err) {
     console.log("Алдаа: ", err);
     res.status(500).json({ message: "Сервер алдаа..." });
+    next(err);
   }
-}
+};
