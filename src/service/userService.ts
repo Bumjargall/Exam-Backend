@@ -171,4 +171,17 @@ export class UserService {
     user.password = newPassword;
     await user.save();
   }
+
+  //role -ыг нь уншаад тоог нь буцаах
+  static async getRoleByUsers(role: string): Promise<number> {
+    await dbConnect();
+
+    const validRoles = ["student", "teacher", "admin"];
+    if (!validRoles.includes(role)) {
+      throw new Error("Буруу role илгээгдлээ");
+    }
+
+    const count = await User.countDocuments({ role });
+    return count;
+  }
 }

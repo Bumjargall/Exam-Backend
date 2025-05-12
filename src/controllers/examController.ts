@@ -3,6 +3,7 @@ import { ExamService } from "../service/examService";
 import { v4 as uuidv4 } from "uuid";
 import { CreateExamInput, IExam } from "../models/Exam";
 import { QuestionInput, AnswerOption } from "../models/Exam";
+import { date } from "zod";
 
 type QuestionTransformed = {
   id: string;
@@ -199,6 +200,41 @@ export const getExamByKeyValue = async (
     res.status(200).json({ data: exam });
   } catch (err) {
     console.log("getExamByKeyValue алдаа:", err);
+    res.status(500).json({ message: "Сервер шалгана уу..." });
+  }
+};
+
+export const getExamCount = async (req: Request, res: Response) => {
+  try {
+    const count = await ExamService.getExamCount();
+    res.status(200).json({ success: true, count });
+  } catch (err) {
+    console.log("Count алдаа:", err);
+    res.status(500).json({ message: "Сервер шалгана уу..." });
+  }
+};
+
+export const getRecentExams = async (req: Request, res: Response) => {
+  try {
+    const limit = parseInt(req.query.limit as string) || 5;
+    const exams = await ExamService.getRecentExams(limit);
+    //console.log("exams/data/controller-----> ", exams);
+    res.status(200).json({ success: true, data: exams });
+  } catch (error) {
+    console.error("алдаа:", error);
+    res.status(500).json({ message: "Сервер шалгана уу..." });
+  }
+};
+
+// chart data
+export const getExamChartData = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const chartData = await ExamService.getExamChartData();
+    //.log("controller..data---> ", chartData)
+
+    res.status(200).json({ success: true, data: chartData });
+  } catch (error) {
+    console.error("Chart data татахад алдаа гарлаа:", error);
     res.status(500).json({ message: "Сервер шалгана уу..." });
   }
 };

@@ -11,6 +11,7 @@ import {
   deleteResultByExamIdByUserId,
   checkResultByExamUser,
   getResultByCreator,
+  getExamTakenCount,
 } from "../controllers/statusExamScore";
 
 const statusExamRouter = Router();
@@ -25,6 +26,7 @@ statusExamRouter.get(
   "/checkedResult/:examId/:studentId",
   checkResultByExamUser
 );
+statusExamRouter.get("/taken-count", getExamTakenCount)
 statusExamRouter.post("/", createResult);
 statusExamRouter.put("/:id", updateResult);
 statusExamRouter.delete("/:id", deleteResult);

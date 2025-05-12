@@ -3,6 +3,7 @@ import Exam, { CreateExamInput, IExam } from "../models/Exam";
 import ResultScore, { IResultScore } from "../models/ResultScore";
 import User from "../models/User";
 import { use } from "react";
+import dbConnect from "../db";
 
 interface ExamWithStudentInfo extends IResultScore {
   studentInfo: {
@@ -173,6 +174,85 @@ export class ExamService {
       return exam;
     } catch (error) {
       throw new Error("Шалгалт авах үед алдаа гарлаа: " + error);
+    }
+  }
+
+  //Admin хэсэгт буцаах тоон мэдээлэл
+  static async getExamCount(): Promise<number> {
+    return await Exam.countDocuments();
+  }
+
+  static async getRecentExams(limit = 5): Promise<any[]> {
+    const exams = await Exam.aggregate([
+      { $sort: { createdAt: -1 } },
+      { $limit: limit },
+      {
+        $lookup: {
+          from: "users",
+          localField: "createUserById",
+          foreignField: "_id",
+          as: "userInfo",
+        },
+      },
+      { $unwind: "$userInfo" },
+      {
+        $project: {
+          _id: 1,
+          title: 1,
+          description: 1,
+          dateTime: 1,
+          duration: 1,
+          status: 1,
+          totalScore: 1,
+          createdAt: 1,
+          createUserById: 1,
+          "userInfo.firstName": 1,
+          "userInfo.lastName": 1,
+        },
+      },
+    ]);
+
+    return exams;
+  }
+  //chart data
+  static async getExamChartData(): Promise<{ week: string; count: number }[]> {
+    await dbConnect();
+    try {
+  
+      const data = await Exam.aggregate([
+        {
+          $match: {
+            createdAt: { $type: "date" },
+          },
+        },
+        {
+          $group: {
+            _id: {
+              $dateTrunc: {
+                date: "$createdAt",
+                unit: "week",
+                binSize: 1,
+              },
+            },
+            count: { $sum: 1 },
+          },
+        },
+        { $sort: { _id: 1 } },
+        {
+          $project: {
+            _id: 0,
+            week: {
+              $dateToString: { format: "%Y-%m-%d", date: "$_id" },
+            },
+            count: 1,
+          },
+        },
+      ]);
+  
+      return data;
+    } catch (err) {
+      console.error("❌ Chart aggregate алдаа:", err);
+      throw err;
     }
   }
 }

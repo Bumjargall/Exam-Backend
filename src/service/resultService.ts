@@ -325,4 +325,10 @@ export class ResultService {
       throw new Error("checkResultByExamUser алдаа: " + err);
     }
   }
+
+   
+  //Admin хэсэгт буцаах тоон мэдээлэл
+  static async getExamTakenCount(): Promise<number> {
+    return await ResultScore.countDocuments();
+  }
 }

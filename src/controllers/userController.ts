@@ -310,3 +310,32 @@ export const sendResetEmail: RequestHandler = async (req, res, next) => {
     });
   }
 };
+
+//role нь тухайн хэрэглэгчийг тоолж буцаах
+export const getRoleByUser: RequestHandler = async (req, res, next) => {
+  try {
+    const { role } = req.query;
+    if (!role || typeof role !== "string") {
+      return res
+        .status(400)
+        .json({ success: false, message: "Role хоосон байна" });
+    }
+
+    const count = await UserService.getRoleByUsers(role);
+    return res.status(200).json({ count });
+  } catch (err) {
+    console.log("Хэрэглэгчийг серверээс тоолох үед алдааг гарлаа: ", err);
+    return next(err);
+  }
+};
+
+
+export const getTeachers = async (req: Request, res: Response) => {
+  try {
+    const teachers = await UserService.getUsersByRole("teacher");
+    res.status(200).json({ success: true, data: teachers });
+  } catch (err) {
+    console.error("Багш нар авах үед алдаа:", err);
+    res.status(500).json({ message: "Сервер алдаа гарлаа" });
+  }
+};

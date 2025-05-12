@@ -10,12 +10,16 @@ import {
   forgotPassword,
   resetPassword,
   checkPassword,
+  getRoleByUser,
+  getTeachers,
 } from "../controllers/userController";
 import { authenticate } from "../middlewares/auth";
 
 const userRouter = express.Router();
 
 userRouter.get("/", getAllUsers);
+userRouter.get("/role", getRoleByUser);
+userRouter.get("/role-teachers", getTeachers);
 userRouter.get("/:id", getUserById);
 userRouter.post("/", createUser);
 userRouter.post("/check-password", checkPassword);

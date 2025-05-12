@@ -190,3 +190,16 @@ export const checkResultByExamUser = async (
     next(err);
   }
 };
+
+export const getExamTakenCount = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const count = await ResultService.getExamTakenCount();
+    res.status(200).json({ success: true, count });
+  } catch (error) {
+    next(error);
+  }
+};
