@@ -28,7 +28,7 @@ export function transformQuestions(
     return {
       id: uuidv4(), // шинэ ID онооно
       question: q.question,
-      score: q.score,
+      score: q.score ?? 0,
       type: q.type,
       answers: noAnswerTypes.includes(q.type) ? [] : answers,
     };
@@ -57,7 +57,7 @@ export const createExam = async (
     }
     const transformedQuestions = transformQuestions(questions);
     const totalScore = transformedQuestions.reduce(
-      (acc, q) => acc + q.score,
+      (acc, q) => acc + (typeof q.score === "number" ? q.score : 0),
       0
     );
 

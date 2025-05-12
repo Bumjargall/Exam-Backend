@@ -5,6 +5,7 @@ import nodemailer from "nodemailer";
 import dotenv from "dotenv";
 import fetch from "node-fetch";
 import { MailOptions } from "nodemailer/lib/json-transport";
+import User from "../models/User";
 
 dotenv.config();
 
@@ -85,6 +86,40 @@ export const loginUser = async (
   } catch (error) {
     console.error("Алдаа: ", error);
     return next(error);
+  }
+};
+export const checkPassword: RequestHandler = async (req, res) => {
+  const { userId, password } = req.body;
+  if (!userId || !password) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Мэдээлэл дутуу байна." });
+  }
+
+  try {
+    const user = await User.findById(userId).select("+password");
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Хэрэглэгч олдсонгүй." });
+    }
+    const isPasswordValid = await UserService.comparePassword(
+      password,
+      user.password
+    );
+    if (!isPasswordValid) {
+      return res
+        .status(401)
+        .json({ success: false, message: "Нууц үг буруу байна" });
+    }
+    return res
+      .status(200)
+      .json({ success: true, message: "Нууг үг зөв байна" });
+  } catch (err) {
+    console.error("Алдаа: ", err);
+    return res
+      .status(500)
+      .json({ success: false, message: "Серверийн алдаа." });
   }
 };
 

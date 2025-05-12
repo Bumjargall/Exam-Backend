@@ -178,12 +178,11 @@ export const checkResultByExamUser = async (
 ): Promise<void> => {
   try {
     const { studentId, examId } = req.params;
-    const exists = await ResultService.checkResultByExamUser(examId, studentId);
+    const status = await ResultService.checkResultByExamUser(examId, studentId);
 
-    //console.log("existing_controller--------> ",exists)
     res.status(200).json({
       success: true,
-      status, // "submitted", "taking", эсвэл "none"
+      status, // ✅ Одоо status хувьсагч тодорхойлогдсон
     });
   } catch (err) {
     console.log("Алдаа: ", err);

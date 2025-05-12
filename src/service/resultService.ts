@@ -319,7 +319,6 @@ export class ResultService {
         examId: new ObjectId(examId),
         studentId: new ObjectId(studentId),
       }).select("status");
-      //console.log("service----> ",result)
       if (!result) return "none";
       return result.status === "submitted" ? "submitted" : "taking";
     } catch (err) {

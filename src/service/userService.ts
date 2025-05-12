@@ -51,14 +51,6 @@ export class UserService {
     inputPassword: string,
     storedPassword: string
   ): Promise<boolean> {
-    console.log(inputPassword, storedPassword);
-    console.log("🧪 Нэвтрэх password:", inputPassword);
-    console.log("🧪 DB хадгалсан password:", storedPassword);
-    console.log(
-      "🧪 Нууц үг тохирч байна уу:",
-      await bcrypt.compare(inputPassword, storedPassword)
-    );
-
     return await bcrypt.compare(inputPassword, storedPassword);
   }
   // JWT токен үүсгэх
@@ -88,6 +80,10 @@ export class UserService {
     userData: Partial<IUser>
   ): Promise<IUser | null> {
     await dbConnect();
+    const existingUser = await User.findOne({ phone: userData.phone });
+    if (existingUser && existingUser._id.toString() !== userId) {
+      throw new Error("Энэ утасны дугаар өөр хэрэглэгч дээр бүртгэлтэй байна.");
+    }
     if (!ObjectId.isValid(userId)) throw new Error("Хүчинтэй ID биш");
     delete userData.password; // password өөрчлөхгүй
     return await User.findByIdAndUpdate(userId, userData, {
