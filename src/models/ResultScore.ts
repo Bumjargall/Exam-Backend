@@ -6,7 +6,7 @@ export type ResultStatus = "submitted" | "taking";
 interface IQuestionResult {
   questionId: string;
   answer: any;
-  score: number;
+  score?: number;
   isCorrect?: boolean;
 }
 

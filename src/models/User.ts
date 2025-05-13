@@ -40,6 +40,7 @@ const UserSchema = new mongoose.Schema<IUser>(
     },
     organization: {
       type: String,
+      default: "NaN",
       required: [true, "Шаардлагатай"],
     },
     password: {
