@@ -12,6 +12,7 @@ import {
   checkPassword,
   getRoleByUser,
   getTeachers,
+  getStudents,
 } from "../controllers/userController";
 import { authenticate } from "../middlewares/auth";
 
@@ -20,6 +21,7 @@ const userRouter = express.Router();
 userRouter.get("/", getAllUsers);
 userRouter.get("/role", getRoleByUser);
 userRouter.get("/role-teachers", getTeachers);
+userRouter.get("/role-students", getStudents);
 userRouter.get("/:id", getUserById);
 userRouter.post("/", createUser);
 userRouter.post("/check-password", checkPassword);

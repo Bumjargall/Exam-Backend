@@ -339,3 +339,13 @@ export const getTeachers = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Сервер алдаа гарлаа" });
   }
 };
+
+export const getStudents = async (req: Request, res: Response) => {
+  try {
+    const students = await UserService.getUsersByRole("student");
+    res.status(200).json({ success: true, data: students });
+  } catch (err) {
+    console.error("Багш нар авах үед алдаа:", err);
+    res.status(500).json({ message: "Сервер алдаа гарлаа" });
+  }
+};
