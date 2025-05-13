@@ -1,9 +1,9 @@
 import { ObjectId } from "mongodb";
-import dbConnect from "../db";
-import ResultScore, { IResultScore, ResultStatus } from "../models/ResultScore";
+import ResultScore, { IResultScore } from "../models/ResultScore";
 import Exam from "../models/Exam";
 import User from "../models/User";
 import mongoose from "mongoose";
+import { validateObjectIds } from "../validator/objectId";
 
 interface StudentInfo {
   _id: ObjectId;
@@ -19,8 +19,16 @@ interface ICreateResult {
   score: number;
 }
 
-interface ExamWithStudentInfo extends IResultScore {
+interface ExamWithStudentInfo
+  extends Omit<IResultScore, "studentId" | "examId"> {
   studentInfo: StudentInfo;
+  examId: ObjectId;
+  examInfo?: {
+    _id: ObjectId;
+    title: string;
+    key?: string;
+    totalScore?: number;
+  };
 }
 
 interface UpdateResultResponse {
@@ -33,19 +41,10 @@ interface DeleteResultResponse {
 }
 
 export class ResultService {
-  private static async validateIds(...ids: string[]): Promise<void> {
-    for (const id of ids) {
-      if (!ObjectId.isValid(id)) {
-        throw new Error(`Буруу ID: ${id}`);
-      }
-    }
-  }
-
   static async createResult(resultData: ICreateResult): Promise<IResultScore> {
-    await dbConnect();
     const studentId = resultData?.userId;
     try {
-      await this.validateIds(
+      await validateObjectIds(
         resultData.examId.toString(),
         studentId.toString()
       );
@@ -64,7 +63,6 @@ export class ResultService {
   }
 
   static async getAllResults(): Promise<IResultScore[]> {
-    await dbConnect();
     try {
       return await ResultScore.find().lean();
     } catch (error) {
@@ -74,11 +72,8 @@ export class ResultService {
   //createByUserId === userId харах
 
   static async getResultByCreator(userId: string): Promise<IResultScore[]> {
-    await dbConnect();
     try {
-      if (!ObjectId.isValid(userId)) {
-        throw new Error("Буруу хэрэглэгчийн ID байна.");
-      }
+      await validateObjectIds(userId);
       const result = await ResultScore.aggregate([
         {
           $lookup: {
@@ -115,7 +110,6 @@ export class ResultService {
   }
 
   static async getResultByExamId(examId: string): Promise<IResultScore[]> {
-    await dbConnect();
     if (!ObjectId.isValid(examId)) {
       throw new Error("examID шалгахад алдаа гарлаа...");
     }
@@ -129,9 +123,8 @@ export class ResultService {
     resultId: string,
     resultData: Partial<IResultScore>
   ): Promise<UpdateResultResponse> {
-    await dbConnect();
     try {
-      await this.validateIds(resultId);
+      await validateObjectIds(resultId);
       const updateResult = await ResultScore.updateOne(
         { _id: new ObjectId(resultId) },
         { $set: resultData }
@@ -146,10 +139,8 @@ export class ResultService {
     }
   }
   static async deleteResult(resultId: string): Promise<DeleteResultResponse> {
-    await dbConnect();
-
     try {
-      await this.validateIds(resultId);
+      await validateObjectIds(resultId);
       const deleteResult = await ResultScore.deleteOne({
         _id: new ObjectId(resultId),
       });
@@ -162,7 +153,6 @@ export class ResultService {
   }
   //result -ын ExamId хэрэглэгчийн мэдээллийг гаргах
   static async getExamsWithSubmissions() {
-    await dbConnect();
     try {
       const examIds = await ResultScore.distinct("examId");
       const exams = await Exam.find({ _id: { $in: examIds } }).lean();
@@ -175,10 +165,9 @@ export class ResultService {
   static async getResultByUsers(
     examId: string
   ): Promise<ExamWithStudentInfo[]> {
-    await dbConnect();
     try {
       console.log("servicee......");
-      await this.validateIds(examId);
+      await validateObjectIds(examId);
 
       const result = await ResultScore.aggregate<ExamWithStudentInfo>([
         {
@@ -237,10 +226,11 @@ export class ResultService {
   static async getResultByUserId(
     userId: string
   ): Promise<ExamWithStudentInfo[]> {
-    await dbConnect();
     try {
-      await this.validateIds(userId);
-
+      const userExists = await User.exists({ _id: new ObjectId(userId) });
+      if (!userExists) {
+        throw new Error("Хэрэглэгч олдсонгүй.");
+      }
       const result = await ResultScore.aggregate<ExamWithStudentInfo>([
         {
           $match: {
@@ -294,14 +284,17 @@ export class ResultService {
   }
 
   //examId, studentId хоёр байх юм бол тухайн шалгалтаас хэрэглэгчийн хасах
-  static async deleteResultByExamIdByUserId(examId: string, studentId: string) {
-    await dbConnect();
+  static async deleteResultByExamIdByUserId(
+    examId: string,
+    studentId: string
+  ): Promise<DeleteResultResponse> {
     try {
+      await validateObjectIds(examId, studentId);
       const result = await ResultScore.deleteOne({
         examId: new ObjectId(examId),
         studentId: new ObjectId(studentId),
       });
-      console.log("blaǎ........", result);
+      //console.log("blaǎ........", result);
       return result;
     } catch (err) {
       throw new Error("deleteResultByExamIdByUserId алдаа: " + err);
@@ -313,7 +306,6 @@ export class ResultService {
     examId: string,
     studentId: string
   ): Promise<"submitted" | "taking" | "none"> {
-    await dbConnect();
     try {
       const result = await ResultScore.findOne({
         examId: new ObjectId(examId),
@@ -326,7 +318,6 @@ export class ResultService {
     }
   }
 
-   
   //Admin хэсэгт буцаах тоон мэдээлэл
   static async getExamTakenCount(): Promise<number> {
     return await ResultScore.countDocuments();

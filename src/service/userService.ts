@@ -6,6 +6,7 @@ import bcrypt from "bcrypt";
 import dbConnect from "../db";
 import mongoose from "mongoose";
 import { PassThrough } from "stream";
+import { validateObjectId } from "../validator/validateObjectId";
 
 dotenv.config();
 
@@ -39,7 +40,6 @@ export class UserService {
 
   // Имэйлээр хэрэглэгч авах
   static async findByEmail(email: string): Promise<IUser | null> {
-    await dbConnect();
     const user = await User.findOne({ email })
       .select("+password")
       .lean<IUser>();
@@ -96,7 +96,6 @@ export class UserService {
 
   // Хэрэглэгч устгах
   static async deleteUser(userId: string): Promise<IUser | null> {
-    await dbConnect();
     if (!ObjectId.isValid(userId)) throw new Error("Хүчинтэй ID биш");
 
     const user = await User.findByIdAndDelete(userId).lean<IUser | null>();
@@ -106,7 +105,6 @@ export class UserService {
 
   // Role-р хэрэглэгч авах
   static async getUsersByRole(role: UserRole): Promise<IUser[]> {
-    await dbConnect();
     return await User.find({ role }).select("-password -__v").lean<IUser[]>();
   }
 
@@ -115,7 +113,6 @@ export class UserService {
     userId: string,
     newRole: UserRole
   ): Promise<Omit<IUser, "password"> | null> {
-    await dbConnect();
     if (!mongoose.Types.ObjectId.isValid(userId)) throw new Error("ID буруу");
 
     const updatedUser = await User.findByIdAndUpdate(
@@ -135,7 +132,6 @@ export class UserService {
     userId: string,
     newPassword: string
   ): Promise<void> {
-    await dbConnect();
     if (!ObjectId.isValid(userId)) throw new Error("ID буруу");
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
@@ -144,7 +140,6 @@ export class UserService {
 
   // 📩 Нууц үг сэргээх токен үүсгэх
   static async generateResetToken(email: string): Promise<string> {
-    await dbConnect();
     const user = await User.findOne({ email });
     if (!user) throw new Error("И-мэйл бүртгэлгүй байна");
 
@@ -161,7 +156,6 @@ export class UserService {
     const payload = jwt.verify(token, process.env.JWT_SECRET!) as {
       id: string;
     };
-    await dbConnect();
 
     const user = await User.findById(payload.id);
     if (!user) {
@@ -174,8 +168,6 @@ export class UserService {
 
   //role -ыг нь уншаад тоог нь буцаах
   static async getRoleByUsers(role: string): Promise<number> {
-    await dbConnect();
-
     const validRoles = ["student", "teacher", "admin"];
     if (!validRoles.includes(role)) {
       throw new Error("Буруу role илгээгдлээ");

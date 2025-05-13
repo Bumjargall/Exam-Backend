@@ -1,13 +1,15 @@
 import { NextFunction, Request, Response } from "express";
 import { ResultService } from "../service/resultService";
+import { handleError } from "../utils/handleError";
 
 export const getAllResults = async (req: Request, res: Response) => {
   try {
     const results = await ResultService.getAllResults();
     res.status(200).json({ data: results });
+    return 
   } catch (err) {
-    console.log("Алдаа: ", err);
-    res.status(500).json({ message: "Сервер шалгах..." });
+    handleError(res, err);
+    return 
   }
 };
 
@@ -20,186 +22,146 @@ export const getResultByCreator = async (req: Request, res: Response) => {
       count: results.length,
       data: results,
     });
+    return 
   } catch (err) {
-    console.log("Алдаа: ", err);
-    res.status(500).json({ message: "Сервер шалгах..." });
+    handleError(res, err);
+    return 
   }
 };
-export const getResultByExamId = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
+
+export const getResultByExamId = async (req: Request, res: Response) => {
   try {
-    const resultId = req.params.id;
-    const result = await ResultService.getResultByExamId(resultId);
-    if (!result) {
-      res.status(404).json({ message: "Шалгалтын мэдээлэл байхгүй..." });
-      return;
+    const result = await ResultService.getResultByExamId(req.params.id);
+    if (!result || result.length === 0) {
+      res.status(404).json({ message: "Шалгалтын мэдээлэл олдсонгүй." });
+      return 
     }
     res.status(200).json({ data: result });
+    return 
   } catch (err) {
-    console.log("Алдаа: ", err);
-    res.status(500).json({ message: "Сервер алдаа гарлаа..." });
+    handleError(res, err);
+    return 
   }
 };
-export const createResult = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
+
+export const createResult = async (req: Request, res: Response) => {
   try {
     const newResult = await ResultService.createResult(req.body.createResult);
-    res
-      .status(201)
-      .json({ message: "Амжилттай хадгалагдлаа...", data: newResult });
+    res.status(201).json({ message: "Амжилттай хадгалагдлаа", data: newResult });
+    return
   } catch (err) {
-    console.log("Алдаа гарлаа", err);
-    res.status(500).json({ message: "Сервер алдаа гарлаа..." });
+    handleError(res, err);
+    return 
   }
 };
-export const updateResult = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
+
+export const updateResult = async (req: Request, res: Response) => {
   try {
     const { result, matchedCount } = await ResultService.updateResult(
       req.params.id,
       req.body
     );
     if (matchedCount === 0) {
-      console.warn("Өөрчлөлт хийгдээгүй байна.");
-      res.status(404).json({ message: "Мэдээлэл олдсонгүй..." });
-      return;
+      res.status(404).json({ message: "Мэдээлэл олдсонгүй." });
+      return
     }
-
     res.status(200).json({ data: result });
+    return
   } catch (err) {
-    console.log("Алдаа: ", err);
-    res.status(500).json({ message: "Сервер алдааг шалгах ..." });
+    handleError(res, err);
+    return 
   }
 };
 
-export const deleteResult = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
+export const deleteResult = async (req: Request, res: Response) => {
   try {
     const { deletedCount } = await ResultService.deleteResult(req.params.id);
-
     if (deletedCount === 0) {
-      res.status(404).json({ message: "Мэдээлэл олдсонгүй..." });
-      return;
+      res.status(404).json({ message: "Мэдээлэл олдсонгүй." });
+      return 
     }
-
-    res.status(200).json({ message: "Устгагдлаа..." });
+    res.status(200).json({ message: "Амжилттай устгагдлаа." });
   } catch (err) {
-    console.log("Алдаа: ", err);
-    res.status(500).json({ message: "Сервер алдаа..." });
+    handleError(res, err);
+    return 
   }
 };
 
-export const getExamsWithSubmissions = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
+export const getExamsWithSubmissions = async (req: Request, res: Response) => {
   try {
     const exams = await ResultService.getExamsWithSubmissions();
     res.status(200).json({ success: true, count: exams.length, data: exams });
+    return 
   } catch (err) {
-    console.error("Алдаа: ", err);
-    res.status(500).json({ message: "Серверийн алдаа гарлаа" });
-    next(err);
-  }
-};
-export const getResultByUsers = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
-  try {
-    const { examId } = req.params;
-    console.log("examIdController----", examId);
-    const result = await ResultService.getResultByUsers(examId);
-    if (!result) {
-      res.status(404).json({ message: "Шалгалтын мэдээлэл байхгүй..." });
-      return;
-    }
-    res.status(200).json({ success: true, count: result.length, data: result });
-  } catch (err) {
-    console.log("Алдаа: ", err);
-    res.status(500).json({ message: "Сервер алдаа гарлаа..." });
-    next(err);
-  }
-};
-export const getResultByUserId = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
-  try {
-    const { userId } = req.params;
-    const result = await ResultService.getResultByUserId(userId);
-    if (!result) {
-      res.status(404).json({ message: "Шалгалтын мэдээлэл байхгүй..." });
-      return;
-    }
-    //console.log("result-----+++++++>", result);
-    res.status(200).json({ success: true, count: result.length, data: result });
-  } catch (err) {
-    console.log("Алдаа: ", err);
-    res.status(500).json({ message: "Сервер алдаа гарлаа..." });
+    handleError(res, err);
+    return 
   }
 };
 
-export const deleteResultByExamIdByUserId = async (
-  req: Request,
-  res: Response
-): Promise<void> => {
+export const getResultByUsers = async (req: Request, res: Response) => {
   try {
-    const { studentId, examId } = req.params;
-    const { deletedCount } = await ResultService.deleteResultByExamIdByUserId(
-      examId,
-      studentId
-    );
+    const result = await ResultService.getResultByUsers(req.params.examId);
+    if (!result || result.length === 0) {
+      res.status(404).json({ message: "Шалгалтын мэдээлэл олдсонгүй." });
+      return 
+    }
+    res.status(200).json({ success: true, count: result.length, data: result });
+    return 
+  } catch (err) {
+    handleError(res, err);
+    return 
+  }
+};
+
+export const getResultByUserId = async (req: Request, res: Response) => {
+  try {
+    const result = await ResultService.getResultByUserId(req.params.userId);
+    if (!result || result.length === 0) {
+      res.status(404).json({ message: "Хэрэглэгчийн шалгалт олдсонгүй." });
+      return 
+    }
+    res.status(200).json({ success: true, count: result.length, data: result });
+    return 
+  } catch (err) {
+    handleError(res, err);
+    return 
+  }
+};
+
+export const deleteResultByExamIdByUserId = async (req: Request, res: Response) => {
+  try {
+    const { examId, studentId } = req.params;
+    const { deletedCount } = await ResultService.deleteResultByExamIdByUserId(examId, studentId);
     if (deletedCount === 0) {
-      res.status(404).json({ message: "Мэдээлэл олдсонгүй..." });
-      return;
+      res.status(404).json({ message: "Мэдээлэл олдсонгүй." });
+      return 
     }
-    res.status(200).json({ message: "Амжилттай устгагдлаа..." });
+    res.status(200).json({ message: "Амжилттай устгагдлаа." });
+    return 
   } catch (err) {
-    console.log("Алдаа: ", err);
-    res.status(500).json({ message: "Сервер алдаа..." });
+    handleError(res, err);
   }
 };
 
-export const checkResultByExamUser = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> => {
+export const checkResultByExamUser = async (req: Request, res: Response) => {
   try {
-    const { studentId, examId } = req.params;
+    const { examId, studentId } = req.params;
     const status = await ResultService.checkResultByExamUser(examId, studentId);
-
-    res.status(200).json({
-      success: true,
-      status, // ✅ Одоо status хувьсагч тодорхойлогдсон
-    });
+    res.status(200).json({ success: true, status });
+    return 
   } catch (err) {
-    console.log("Алдаа: ", err);
-    res.status(500).json({ message: "Сервер алдаа..." });
-    next(err);
+    handleError(res, err);
+    return 
   }
 };
 
-export const getExamTakenCount = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+export const getExamTakenCount = async (req: Request, res: Response) => {
   try {
     const count = await ResultService.getExamTakenCount();
     res.status(200).json({ success: true, count });
-  } catch (error) {
-    next(error);
+    return 
+  } catch (err) {
+    handleError(res, err);
+    return 
   }
 };
