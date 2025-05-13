@@ -4,7 +4,7 @@ export type ExamStatus = "active" | "inactive";
 
 export type AnswerOption = {
   text: string;
-  isCorrect: boolean;
+  isCorrect?: boolean;
 };
 
 export interface QuestionInput {
@@ -84,7 +84,7 @@ const QuestionSchema = new Schema({
       },
       isCorrect: {
         type: Boolean,
-        required: true,
+        required: false,
       },
     },
   ],
