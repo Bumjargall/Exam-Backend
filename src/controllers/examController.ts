@@ -96,7 +96,7 @@ export const getAllExams = async (_: Request, res: Response) => {
       data: { exams },
     });
   } catch (err) {
-    console.log("getAllExams алдаа:", err);
+    git console.log("getAllExams алдаа:", err);
     res.status(500).json({ message: "Сервер алдаа гарлаа..." });
   }
 };
