@@ -176,4 +176,66 @@ export class UserService {
     const count = await User.countDocuments({ role });
     return count;
   }
+
+  //chart user month
+  static async getMonthlyUserGrowth() {
+    const pipeline: mongoose.PipelineStage[] = [
+      {
+        $match: {
+          createdAt: { $exists: true },
+        },
+      },
+      {
+        $project: {
+          month: { $month: "$createdAt" },
+          role: 1,
+        },
+      },
+      {
+        $group: {
+          _id: "$month",
+          students: {
+            $sum: {
+              $cond: [{ $eq: ["$role", "student"] }, 1, 0],
+            },
+          },
+          teachers: {
+            $sum: {
+              $cond: [{ $eq: ["$role", "teacher"] }, 1, 0],
+            },
+          },
+        },
+      },
+      {
+        $sort: { _id: 1 as 1 },
+      },
+    ];
+
+    const result = await User.aggregate(pipeline);
+
+    // 12 сарын нэр
+    const months = [
+      "1-р сар",
+      "2-р сар",
+      "3-р сар",
+      "4-р сар",
+      "5-р сар",
+      "6-р сар",
+      "7-р сар",
+      "8-р сар",
+      "9-р сар",
+      "10-р сар",
+      "11-р сар",
+      "12-р сар",
+    ];
+
+    return months.map((month, index) => {
+      const data = result.find((r) => r._id === index + 1);
+      return {
+        month,
+        students: data?.students || 0,
+        teachers: data?.teachers || 0,
+      };
+    });
+  }
 }

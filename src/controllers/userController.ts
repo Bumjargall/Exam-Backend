@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction, RequestHandler } from "express";
 import { UserService } from "../service/userService";
-import Jwt from "jsonwebtoken";
 import nodemailer from "nodemailer";
 import dotenv from "dotenv";
 import fetch from "node-fetch";
@@ -349,5 +348,15 @@ export const getStudents = async (req: Request, res: Response) => {
   } catch (err) {
     console.error("Багш нар авах үед алдаа:", err);
     res.status(500).json({ message: "Сервер алдаа гарлаа" });
+  }
+};
+
+//chart
+export const getMonthlyUserGrowth = async (req: Request, res: Response) => {
+  try {
+    const formatted = await UserService.getMonthlyUserGrowth();
+    res.status(200).json({ success: true, data: formatted });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Алдаа гарлаа", error });
   }
 };

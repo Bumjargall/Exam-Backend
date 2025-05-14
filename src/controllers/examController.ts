@@ -96,7 +96,6 @@ export const getAllExams = async (_: Request, res: Response) => {
       data: { exams },
     });
   } catch (err) {
-    console.log("getAllExams алдаа:", err);
     res.status(500).json({ message: "Сервер алдаа гарлаа..." });
   }
 };
@@ -117,6 +116,7 @@ export const getExamById = async (
     res.status(500).json({ message: "Сервер алдаагаа шалгана уу..." });
   }
 };
+
 export const getExamByCreateUser = async (
   req: Request,
   res: Response
@@ -133,6 +133,7 @@ export const getExamByCreateUser = async (
     res.status(500).json({ message: "Сервер алдаагаа шалгана уу..." });
   }
 };
+
 export const updateExam = async (req: Request, res: Response) => {
   try {
     const updatedExam = await ExamService.updateExam(req.params.id, req.body);
@@ -142,6 +143,7 @@ export const updateExam = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Сервер алдаа гарлаа..." });
   }
 };
+
 export const updateExamByStatus = async (req: Request, res: Response) => {
   try {
     const { status } = req.body;
@@ -218,7 +220,6 @@ export const getRecentExams = async (req: Request, res: Response) => {
   try {
     const limit = parseInt(req.query.limit as string) || 5;
     const exams = await ExamService.getRecentExams(limit);
-    //console.log("exams/data/controller-----> ", exams);
     res.status(200).json({ success: true, data: exams });
   } catch (error) {
     console.error("алдаа:", error);
@@ -226,15 +227,12 @@ export const getRecentExams = async (req: Request, res: Response) => {
   }
 };
 
-// chart data
 export const getExamChartData = async (
   req: Request,
   res: Response
 ): Promise<void> => {
   try {
     const chartData = await ExamService.getExamChartData();
-    //.log("controller..data---> ", chartData)
-
     res.status(200).json({ success: true, data: chartData });
   } catch (error) {
     console.error("Chart data татахад алдаа гарлаа:", error);
