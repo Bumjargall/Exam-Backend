@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { ResultService } from "../service/resultService";
-import { handleError } from "src/utils/handleError";
+import { handleError } from "../utils/handleError";
 export const getAllResults = async (req: Request, res: Response) => {
   try {
     const results = await ResultService.getAllResults();
