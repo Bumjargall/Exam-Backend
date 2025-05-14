@@ -218,7 +218,6 @@ export class ExamService {
   static async getExamChartData(): Promise<{ week: string; count: number }[]> {
     await dbConnect();
     try {
-  
       const data = await Exam.aggregate([
         {
           $match: {
@@ -248,7 +247,7 @@ export class ExamService {
           },
         },
       ]);
-  
+
       return data;
     } catch (err) {
       console.error("❌ Chart aggregate алдаа:", err);

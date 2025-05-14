@@ -227,7 +227,10 @@ export const getRecentExams = async (req: Request, res: Response) => {
 };
 
 // chart data
-export const getExamChartData = async (req: Request, res: Response): Promise<void> => {
+export const getExamChartData = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   try {
     const chartData = await ExamService.getExamChartData();
     //.log("controller..data---> ", chartData)
