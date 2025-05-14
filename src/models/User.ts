@@ -1,7 +1,8 @@
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 
-export type UserRole = "admin" | "teacher" | "student";
+export const UserRoles = ["admin", "teacher", "student"] as const;
+export type UserRole = typeof UserRoles[number];
 
 export interface IUser extends mongoose.Document {
   firstName: string;
@@ -58,6 +59,7 @@ const UserSchema = new mongoose.Schema<IUser>(
       type: Number,
       unique: true,
       trim: true,
+      match: [/^\\d{8,12}$/, "Утасны дугаар буруу байна"],
     },
   },
   {

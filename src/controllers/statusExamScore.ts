@@ -6,10 +6,10 @@ export const getAllResults = async (req: Request, res: Response) => {
   try {
     const results = await ResultService.getAllResults();
     res.status(200).json({ data: results });
-    return 
+    return;
   } catch (err) {
     handleError(res, err);
-    return 
+    return;
   }
 };
 
@@ -22,10 +22,10 @@ export const getResultByCreator = async (req: Request, res: Response) => {
       count: results.length,
       data: results,
     });
-    return 
+    return;
   } catch (err) {
     handleError(res, err);
-    return 
+    return;
   }
 };
 
@@ -34,24 +34,26 @@ export const getResultByExamId = async (req: Request, res: Response) => {
     const result = await ResultService.getResultByExamId(req.params.id);
     if (!result || result.length === 0) {
       res.status(404).json({ message: "Шалгалтын мэдээлэл олдсонгүй." });
-      return 
+      return;
     }
     res.status(200).json({ data: result });
-    return 
+    return;
   } catch (err) {
     handleError(res, err);
-    return 
+    return;
   }
 };
 
 export const createResult = async (req: Request, res: Response) => {
   try {
     const newResult = await ResultService.createResult(req.body.createResult);
-    res.status(201).json({ message: "Амжилттай хадгалагдлаа", data: newResult });
-    return
+    res
+      .status(201)
+      .json({ message: "Амжилттай хадгалагдлаа", data: newResult });
+    return;
   } catch (err) {
     handleError(res, err);
-    return 
+    return;
   }
 };
 
@@ -63,13 +65,13 @@ export const updateResult = async (req: Request, res: Response) => {
     );
     if (matchedCount === 0) {
       res.status(404).json({ message: "Мэдээлэл олдсонгүй." });
-      return
+      return;
     }
     res.status(200).json({ data: result });
-    return
+    return;
   } catch (err) {
     handleError(res, err);
-    return 
+    return;
   }
 };
 
@@ -78,12 +80,12 @@ export const deleteResult = async (req: Request, res: Response) => {
     const { deletedCount } = await ResultService.deleteResult(req.params.id);
     if (deletedCount === 0) {
       res.status(404).json({ message: "Мэдээлэл олдсонгүй." });
-      return 
+      return;
     }
     res.status(200).json({ message: "Амжилттай устгагдлаа." });
   } catch (err) {
     handleError(res, err);
-    return 
+    return;
   }
 };
 
@@ -91,10 +93,10 @@ export const getExamsWithSubmissions = async (req: Request, res: Response) => {
   try {
     const exams = await ResultService.getExamsWithSubmissions();
     res.status(200).json({ success: true, count: exams.length, data: exams });
-    return 
+    return;
   } catch (err) {
     handleError(res, err);
-    return 
+    return;
   }
 };
 
@@ -103,13 +105,13 @@ export const getResultByUsers = async (req: Request, res: Response) => {
     const result = await ResultService.getResultByUsers(req.params.examId);
     if (!result || result.length === 0) {
       res.status(404).json({ message: "Шалгалтын мэдээлэл олдсонгүй." });
-      return 
+      return;
     }
     res.status(200).json({ success: true, count: result.length, data: result });
-    return 
+    return;
   } catch (err) {
     handleError(res, err);
-    return 
+    return;
   }
 };
 
@@ -118,26 +120,32 @@ export const getResultByUserId = async (req: Request, res: Response) => {
     const result = await ResultService.getResultByUserId(req.params.userId);
     if (!result || result.length === 0) {
       res.status(404).json({ message: "Хэрэглэгчийн шалгалт олдсонгүй." });
-      return 
+      return;
     }
     res.status(200).json({ success: true, count: result.length, data: result });
-    return 
+    return;
   } catch (err) {
     handleError(res, err);
-    return 
+    return;
   }
 };
 
-export const deleteResultByExamIdByUserId = async (req: Request, res: Response) => {
+export const deleteResultByExamIdByUserId = async (
+  req: Request,
+  res: Response
+) => {
   try {
     const { examId, studentId } = req.params;
-    const { deletedCount } = await ResultService.deleteResultByExamIdByUserId(examId, studentId);
+    const { deletedCount } = await ResultService.deleteResultByExamIdByUserId(
+      examId,
+      studentId
+    );
     if (deletedCount === 0) {
       res.status(404).json({ message: "Мэдээлэл олдсонгүй." });
-      return 
+      return;
     }
     res.status(200).json({ message: "Амжилттай устгагдлаа." });
-    return 
+    return;
   } catch (err) {
     handleError(res, err);
   }
@@ -148,10 +156,10 @@ export const checkResultByExamUser = async (req: Request, res: Response) => {
     const { examId, studentId } = req.params;
     const status = await ResultService.checkResultByExamUser(examId, studentId);
     res.status(200).json({ success: true, status });
-    return 
+    return;
   } catch (err) {
     handleError(res, err);
-    return 
+    return;
   }
 };
 
@@ -159,9 +167,49 @@ export const getExamTakenCount = async (req: Request, res: Response) => {
   try {
     const count = await ResultService.getExamTakenCount();
     res.status(200).json({ success: true, count });
-    return 
+    return;
   } catch (err) {
     handleError(res, err);
-    return 
+    return;
   }
 };
+
+export const getExamTakenPerMonth = async (
+  req: Request,
+  res: Response
+)=> {
+  try {
+    const data = await ResultService.getExamTakenPerMonth();
+
+    const months = [
+      "1-р сар",
+      "2-р сар",
+      "3-р сар",
+      "4-р сар",
+      "5-р сар",
+      "6-р сар",
+      "7-р сар",
+      "8-р сар",
+      "9-р сар",
+      "10-р сар",
+      "11-р сар",
+      "12-р сар",
+    ];
+
+    const formatted = months.map((month, index) => {
+      const found = data.find((d) => d._id === index + 1);
+      return { month, taken: found?.count || 0 };
+    });
+    console.log("-----Controller---->", formatted);
+    res.status(200).json({ success: true, data: formatted });
+  } catch (err) {
+    res
+      .status(500)
+      .json({
+        success: false,
+        message: "Ашиглагдсан шалгалтын дата авахад алдаа гарлаа",
+       error: err
+      });
+  }
+};
+

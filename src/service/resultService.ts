@@ -322,4 +322,37 @@ export class ResultService {
   static async getExamTakenCount(): Promise<number> {
     return await ResultScore.countDocuments();
   }
+
+  //monthly ---> chart
+  static async getExamTakenPerMonth() {
+    try {
+      const pipeline: mongoose.PipelineStage[] = [
+        {
+          $match: {
+            submittedAt: { $exists: true },
+          },
+        },
+        {
+          $group: {
+            _id: {
+              $month: {
+                $toDate: "$submittedAt",
+              },
+            },
+            count: { $sum: 1 },
+          },
+        },
+        {
+          $sort: {
+            _id: 1 as 1,
+          },
+        },
+      ];
+
+      const result = await ResultScore.aggregate(pipeline);
+      return result;
+    } catch (error) {
+      throw new Error("ResultService.getExamTakenPerMonth алдаа: " + error);
+    }
+  }
 }

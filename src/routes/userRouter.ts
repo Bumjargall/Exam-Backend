@@ -13,22 +13,25 @@ import {
   getRoleByUser,
   getTeachers,
   getStudents,
+  getMonthlyUserGrowth,
 } from "../controllers/userController";
 import { authenticate } from "../middlewares/auth";
+import { useRouter } from "next/router";
 
 const userRouter = express.Router();
 
-userRouter.get("/", getAllUsers);
-userRouter.get("/role", getRoleByUser);
+userRouter.get("/",authenticate, getAllUsers);
+userRouter.get("/role",authenticate, getRoleByUser);
 userRouter.get("/role-teachers", getTeachers);
 userRouter.get("/role-students", getStudents);
+userRouter.get("/growth/monthly",authenticate, getMonthlyUserGrowth);
 userRouter.get("/:id", getUserById);
-userRouter.post("/", createUser);
+userRouter.post("/",authenticate, createUser);
 userRouter.post("/check-password", checkPassword);
-userRouter.put("/:id", updateUser);
-userRouter.delete("/:id", deleteUser);
-userRouter.patch("/:id/role", changeUserRole);
-userRouter.patch("/:id/password", updatePassword);
+userRouter.put("/:id",authenticate, updateUser);
+userRouter.delete("/:id",authenticate, deleteUser);
+userRouter.patch("/:id/role",authenticate, changeUserRole);
+userRouter.patch("/:id/password",authenticate, updatePassword);
 // нууц үг мартсан
 // хэрэглэгчийн имэйл рүү токен явуулах
 userRouter.post("/forgot-password", forgotPassword);

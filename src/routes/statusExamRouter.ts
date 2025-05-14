@@ -12,7 +12,9 @@ import {
   checkResultByExamUser,
   getResultByCreator,
   getExamTakenCount,
+  getExamTakenPerMonth,
 } from "../controllers/statusExamScore";
+import { authenticate } from "../../src/middlewares/auth";
 
 const statusExamRouter = Router();
 
@@ -26,12 +28,13 @@ statusExamRouter.get(
   "/checkedResult/:examId/:studentId",
   checkResultByExamUser
 );
+statusExamRouter.get("/taken/monthly", getExamTakenPerMonth);
 statusExamRouter.get("/taken-count", getExamTakenCount);
-statusExamRouter.post("/", createResult);
-statusExamRouter.put("/:id", updateResult);
-statusExamRouter.delete("/:id", deleteResult);
+statusExamRouter.post("/",authenticate, createResult);
+statusExamRouter.put("/:id",authenticate, updateResult);
+statusExamRouter.delete("/:id",authenticate, deleteResult);
 statusExamRouter.delete(
-  "/by-exam-user/:examId/:studentId",
+  "/by-exam-user/:examId/:studentId",authenticate,
   deleteResultByExamIdByUserId
 );
 statusExamRouter.get("/", getAllResults);

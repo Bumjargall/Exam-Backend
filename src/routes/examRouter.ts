@@ -24,9 +24,9 @@ examRouter.get("/recent", getRecentExams);
 examRouter.get("/:id", getExamById);
 examRouter.get("/createByteacher/:id", getExamByCreateUser);
 examRouter.get("/by-key/:key", getExamByKeyValue);
-examRouter.post("/", createExam);
-examRouter.patch("/:id/status", updateExamByStatus);
-examRouter.put("/:id", updateExam);
-examRouter.delete("/:id", deleteExam);
+examRouter.post("/",authenticate, createExam);
+examRouter.patch("/:id/status",authenticate, updateExamByStatus);
+examRouter.put("/:id",authenticate, updateExam);
+examRouter.delete("/:id",authenticate, deleteExam);
 
 export default examRouter;
