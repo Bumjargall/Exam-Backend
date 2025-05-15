@@ -26,13 +26,18 @@ export class UserService {
   // Хэрэглэгч бүртгэх
   static async createUser(userData: Omit<IUser, "_id">): Promise<IUser> {
     await dbConnect();
-    const [emailExists, phoneExists] = await Promise.all([
-      User.findOne({ email: userData.email }),
-      userData.phone ? User.findOne({ phone: userData.phone }) : null,
-    ]);
+    const emailExists = await User.findOne({ email: userData.email });
+    if (emailExists) {
+      throw new Error("Энэ имэйл бүртгэлтэй байна");
+    }
 
-    if (emailExists) throw new Error("Энэ имэйл бүртгэлтэй байна");
-    if (phoneExists) throw new Error("Энэ утас бүртгэлтэй байна");
+    let phoneExists = null;
+    if (userData.phone) {
+      phoneExists = await User.findOne({ phone: userData.phone });
+      if (phoneExists) {
+        throw new Error("Энэ утас бүртгэлтэй байна");
+      }
+    }
 
     const user = await User.create(userData);
     return user.toObject();

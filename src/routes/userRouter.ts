@@ -26,7 +26,7 @@ userRouter.get("/role-teachers", getTeachers);
 userRouter.get("/role-students", getStudents);
 userRouter.get("/growth/monthly",authenticate, getMonthlyUserGrowth);
 userRouter.get("/:id", getUserById);
-userRouter.post("/",authenticate, createUser);
+userRouter.post("/", createUser);
 userRouter.post("/check-password", checkPassword);
 userRouter.put("/:id",authenticate, updateUser);
 userRouter.delete("/:id",authenticate, deleteUser);

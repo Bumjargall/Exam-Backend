@@ -135,8 +135,8 @@ export const createUser: RequestHandler = async (
       data: newUser,
     });
   } catch (error) {
-    console.error("Алдаа: ", error);
-    res.status(500).json({ success: false, message: error });
+    //console.error("Алдаа: ", error.message);
+    res.status(200).json({ success: false, message:error.message });
   }
 };
 
