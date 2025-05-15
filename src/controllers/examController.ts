@@ -96,7 +96,6 @@ export const getAllExams = async (_: Request, res: Response) => {
       data: { exams },
     });
   } catch (err) {
-    console.log("getAllExams алдаа:", err);
     res.status(500).json({ message: "Сервер алдаа гарлаа..." });
   }
 };
@@ -228,7 +227,10 @@ export const getRecentExams = async (req: Request, res: Response) => {
   }
 };
 
-export const getExamChartData = async (req: Request, res: Response): Promise<void> => {
+export const getExamChartData = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   try {
     const chartData = await ExamService.getExamChartData();
     res.status(200).json({ success: true, data: chartData });

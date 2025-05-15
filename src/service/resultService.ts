@@ -166,7 +166,6 @@ export class ResultService {
     examId: string
   ): Promise<ExamWithStudentInfo[]> {
     try {
-      console.log("servicee......");
       await validateObjectIds(examId);
 
       const result = await ResultScore.aggregate<ExamWithStudentInfo>([

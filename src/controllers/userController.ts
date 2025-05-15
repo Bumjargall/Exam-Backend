@@ -123,7 +123,10 @@ export const checkPassword: RequestHandler = async (req, res) => {
 };
 
 // Register
-export const createUser: RequestHandler = async (req, res, next) => {
+export const createUser: RequestHandler = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   try {
     const newUser = await UserService.createUser(req.body);
     res.status(201).json({
@@ -133,7 +136,7 @@ export const createUser: RequestHandler = async (req, res, next) => {
     });
   } catch (error) {
     console.error("Алдаа: ", error);
-    return next(error);
+    res.status(500).json({ success: false, message: error });
   }
 };
 
@@ -328,7 +331,6 @@ export const getRoleByUser: RequestHandler = async (req, res, next) => {
   }
 };
 
-
 export const getTeachers = async (req: Request, res: Response) => {
   try {
     const teachers = await UserService.getUsersByRole("teacher");
@@ -355,8 +357,6 @@ export const getMonthlyUserGrowth = async (req: Request, res: Response) => {
     const formatted = await UserService.getMonthlyUserGrowth();
     res.status(200).json({ success: true, data: formatted });
   } catch (error) {
-    res
-      .status(500)
-      .json({ success: false, message: "Алдаа гарлаа", error });
+    res.status(500).json({ success: false, message: "Алдаа гарлаа", error });
   }
 };
