@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { ResultService } from "../service/resultService";
 import { handleError } from "../utils/handleError";
+import { date } from "zod";
 export const getAllResults = async (req: Request, res: Response) => {
   try {
     const results = await ResultService.getAllResults();
@@ -142,8 +143,18 @@ export const getResultByUserId = async (
       res.status(404).json({ message: "Хэрэглэгчийн шалгалт олдсонгүй." });
       return;
     }
-    //console.log("result-----+++++++>", result);
     res.status(200).json({ success: true, count: result.length, data: result });
+    return;
+  } catch (err) {
+    handleError(res, err);
+    return;
+  }
+};
+export const getResultByUserAndExam = async (req: Request, res: Response) => {
+  try {
+    const { examId, userId } = req.params;
+    const result = await ResultService.getResultByUserAndExam(examId, userId);
+    res.status(200).json({ success: true, data: result });
     return;
   } catch (err) {
     handleError(res, err);

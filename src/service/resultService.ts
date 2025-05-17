@@ -108,6 +108,22 @@ export class ResultService {
       throw new Error("getResultByCreator алдаа: " + err);
     }
   }
+  static async getResultByUserAndExam(
+    examId: string,
+    userId: string
+  ): Promise<IResultScore | null> {
+    await validateObjectIds(examId, userId);
+
+    try {
+      const result = await ResultScore.findOne({
+        examId: new ObjectId(examId),
+        studentId: new ObjectId(userId),
+      }).lean();
+      return result;
+    } catch (err) {
+      throw new Error("Алдаа гарлаа: " + err);
+    }
+  }
 
   static async getResultByExamId(examId: string): Promise<IResultScore[]> {
     if (!ObjectId.isValid(examId)) {
@@ -156,7 +172,6 @@ export class ResultService {
     try {
       const examIds = await ResultScore.distinct("examId");
       const exams = await Exam.find({ _id: { $in: examIds } }).lean();
-      //console.log("exams----> ", exams);
       return exams;
     } catch (error) {
       throw new Error("ResultService.getExamsWithSubmissions алдаа: " + error);

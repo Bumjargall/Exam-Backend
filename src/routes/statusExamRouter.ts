@@ -13,6 +13,7 @@ import {
   getResultByCreator,
   getExamTakenCount,
   getExamTakenPerMonth,
+  getResultByUserAndExam,
 } from "../controllers/statusExamScore";
 import { authenticate } from "../../src/middlewares/auth";
 
@@ -23,6 +24,7 @@ statusExamRouter.get("/by-creator/:userId", getResultByCreator);
 //result-д examId -аар хэрэглэгчийн мэдээллийг гаргах
 statusExamRouter.get("/by-exam/:examId", getResultByUsers);
 statusExamRouter.get("/by-user/:userId", getResultByUserId);
+statusExamRouter.get("/by-result/:examId/:userId", getResultByUserAndExam);
 statusExamRouter.get("/submitted/exams", getExamsWithSubmissions);
 statusExamRouter.get(
   "/checkedResult/:examId/:studentId",
@@ -30,11 +32,12 @@ statusExamRouter.get(
 );
 statusExamRouter.get("/taken/monthly", getExamTakenPerMonth);
 statusExamRouter.get("/taken-count", getExamTakenCount);
-statusExamRouter.post("/",authenticate, createResult);
-statusExamRouter.put("/:id",authenticate, updateResult);
-statusExamRouter.delete("/:id",authenticate, deleteResult);
+statusExamRouter.post("/", authenticate, createResult);
+statusExamRouter.put("/:id", authenticate, updateResult);
+statusExamRouter.delete("/:id", authenticate, deleteResult);
 statusExamRouter.delete(
-  "/by-exam-user/:examId/:studentId",authenticate,
+  "/by-exam-user/:examId/:studentId",
+  authenticate,
   deleteResultByExamIdByUserId
 );
 statusExamRouter.get("/", getAllResults);
