@@ -32,8 +32,8 @@ statusExamRouter.get(
 );
 statusExamRouter.get("/taken/monthly", getExamTakenPerMonth);
 statusExamRouter.get("/taken-count", getExamTakenCount);
-statusExamRouter.post("/", authenticate, createResult);
-statusExamRouter.put("/:id", authenticate, updateResult);
+statusExamRouter.post("/", createResult);
+statusExamRouter.put("/:id", updateResult);
 statusExamRouter.delete("/:id", authenticate, deleteResult);
 statusExamRouter.delete(
   "/by-exam-user/:examId/:studentId",

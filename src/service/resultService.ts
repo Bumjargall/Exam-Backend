@@ -4,6 +4,7 @@ import Exam from "../models/Exam";
 import User from "../models/User";
 import mongoose from "mongoose";
 import { validateObjectIds } from "../validator/objectId";
+import redis from "../utils/redis";
 
 interface StudentInfo {
   _id: ObjectId;
@@ -55,6 +56,9 @@ export class ResultService {
         questions: [],
       };
       const result = await ResultScore.create(dataToSave);
+      if (result?.examId) {
+        await redis.del(`getResultByUsers:${result.examId}`);
+      }
 
       return result.toObject();
     } catch (error) {
@@ -146,6 +150,12 @@ export class ResultService {
         { $set: resultData }
       );
       const updatedDoc = await ResultScore.findById(resultId).lean();
+      if (updatedDoc?.studentId) {
+        await redis.del(`getResultByUsersId:${updatedDoc.studentId}`);
+      }
+      if (updatedDoc?.examId) {
+        await redis.del(`getResultByUsers:${updatedDoc.examId}`);
+      }
       return {
         result: updatedDoc,
         matchedCount: updateResult.matchedCount,
@@ -182,7 +192,11 @@ export class ResultService {
   ): Promise<ExamWithStudentInfo[]> {
     try {
       await validateObjectIds(examId);
-
+      const cacheKey = `getResultByUsers:${examId}`;
+      const cachedData = await redis.get(cacheKey);
+      if (cachedData) {
+        return JSON.parse(cachedData) as ExamWithStudentInfo[];
+      }
       const result = await ResultScore.aggregate<ExamWithStudentInfo>([
         {
           $match: {
@@ -230,7 +244,7 @@ export class ResultService {
           },
         },
       ]);
-      console.log("reseltServer----", result);
+      await redis.set(cacheKey, JSON.stringify(result), "EX", 180);
       return result;
     } catch (error) {
       throw new Error("ResultService.getResultByStatusUsers алдаа: " + error);
@@ -241,6 +255,11 @@ export class ResultService {
     userId: string
   ): Promise<ExamWithStudentInfo[]> {
     try {
+      const cacheKey = `getResultByUsersId:${userId}`;
+      const cachedData = await redis.get(cacheKey);
+      if (cachedData) {
+        return JSON.parse(cachedData) as ExamWithStudentInfo[];
+      }
       const userExists = await User.exists({ _id: new ObjectId(userId) });
       if (!userExists) {
         throw new Error("Хэрэглэгч олдсонгүй.");
@@ -290,7 +309,7 @@ export class ResultService {
           },
         },
       ]);
-
+      await redis.set(cacheKey, JSON.stringify(result), "EX", 180);
       return result;
     } catch (error) {
       throw new Error("ResultService.getResultByUserId алдаа" + error);
